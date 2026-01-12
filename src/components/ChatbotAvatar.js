@@ -45,6 +45,20 @@ const ChatbotAvatar = ({ emotion, isSpeaking, onMicInput }) => {
          But sticking to your video structure:
       */}
       <div className={`avatar-wrapper ${isSpeaking ? 'speaking' : ''}`}>
+        <div className="frame-logos">
+  <img
+    src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png"
+    className="frame-logo left"
+    alt="EEC Logo"
+  />
+  <div className="frame-text">Department of CSE</div>
+  <img
+    src="https://i.ibb.co/wFFkzGVR/ACE.png"
+    className="frame-logo right"
+    alt="ACE Logo"
+  />
+</div>
+
         <div className="avatar-video-wrapper">
           <video ref={videoRef} className="avatar-video" autoPlay loop muted playsInline>
             <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
