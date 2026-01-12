@@ -7,8 +7,12 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
 
   const [isHovering, setIsHovering] = useState(false);
   const [listening, setListening] = useState(false);
+  const [internalSpeaking, setInternalSpeaking] = useState(false); // To control lip-sync locally
   const [userText, setUserText] = useState('');
   const [botText, setBotText] = useState('');
+
+  // Combine parent 'isSpeaking' prop with local voice state
+  const isAnimating = isSpeaking || internalSpeaking;
 
   // Emotion Configuration
   const emotionConfig = {
@@ -34,10 +38,7 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
 
   // --- 1. Translation Helper (English -> Tamil) ---
   const translateToTamil = async (englishText) => {
-    // ⚠️ NOTE: Browsers cannot translate offline. 
-    // You normally need a Google/Microsoft Translate API key here.
-    // This is a SIMULATION for your demo.
-    
+    // Simple dictionary for the demo
     const lowerText = englishText.toLowerCase();
     
     const mockDictionary = {
@@ -47,67 +48,81 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
       "happy pongal": "இனிய பொங்கல் நல்வாழ்த்துக்கள்",
       "what is special today": "இன்று என்ன விசேஷம்?",
       "tell me about pongal": "பொங்கல் பற்றி சொல்லுங்கள்",
-      "menu": "உணவு பட்டியல்"
+      "menu": "உணவு பட்டியல்",
+      "food": "உணவு",
+      "thanks": "நன்றி"
     };
 
-    // Return mapped Tamil or original text + hint if not found
-    return mockDictionary[lowerText] || englishText + " (தமிழில்...)";
+    // Return mapped Tamil or original text
+    return mockDictionary[lowerText] || englishText;
   };
 
-  // --- 2. Tamil Text-to-Speech ---
+  // --- 2. Tamil Text-to-Speech (With Animation Sync) ---
   const speakTamil = (text) => {
     if (!window.speechSynthesis) return;
 
-    window.speechSynthesis.cancel(); // Stop previous audio
+    window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ta-IN'; // Tamil India
-    utterance.rate = 0.9;     // Slightly slower for clarity
+    utterance.lang = 'ta-IN'; 
+    utterance.rate = 0.9;
     utterance.pitch = 1;
 
-    // Try to find a specific Tamil voice
+    // Voice Selection
     const voices = window.speechSynthesis.getVoices();
     const tamilVoice = voices.find(v => v.lang.includes('ta'));
     if (tamilVoice) utterance.voice = tamilVoice;
 
+    // --- SYNC EVENTS ---
+    utterance.onstart = () => {
+      setInternalSpeaking(true); // Start moving lips
+    };
+
+    utterance.onend = () => {
+      setInternalSpeaking(false); // Stop moving lips
+    };
+
+    utterance.onerror = () => {
+      setInternalSpeaking(false);
+    };
+
     window.speechSynthesis.speak(utterance);
   };
 
-  // --- 3. Microphone Logic (Listens in English) ---
+  // --- 3. Microphone Logic ---
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('Speech Recognition not supported in this browser. Try Chrome.');
+      alert('Speech Recognition not supported. Try Chrome.');
       return;
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US'; // 🎤 Listen for English
+    recognition.lang = 'en-US'; // Listen for English
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     recognitionRef.current = recognition;
     setListening(true);
+    setUserText(''); // Clear previous text
+    setBotText('');
 
     recognition.onstart = () => {
-        console.log("Listening for English...");
+        console.log("Listening...");
     };
-
-    recognition.start();
 
     recognition.onresult = async (event) => {
       const englishTranscript = event.results[0][0].transcript;
-      console.log("User said (English):", englishTranscript);
+      console.log("User said:", englishTranscript);
 
       setListening(false);
 
-      // A. Translate English input to Tamil for Display
+      // A. Display in Tamil immediately
       const tamilDisplay = await translateToTamil(englishTranscript);
-      setUserText(tamilDisplay); // 🖥️ Print in Tamil
+      setUserText(tamilDisplay);
 
-      // B. Send the original English query to backend (so backend understands intent clearly)
-      // Or you can send 'tamilDisplay' if your backend expects Tamil.
+      // B. Send to Backend
       sendToBackend(englishTranscript); 
     };
 
@@ -119,26 +134,25 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
     recognition.onend = () => {
         setListening(false);
     };
+
+    recognition.start();
   };
 
   // --- 4. Backend Interaction ---
   const sendToBackend = async (text) => {
     try {
-      setBotText('...'); // Loading indicator
+      setBotText('...'); // Loading...
 
       const res = await fetch('https://pongal-celeb.onrender.com/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }) // Sending the query
+        body: JSON.stringify({ message: text }) 
       });
 
       const data = await res.json();
       
-      // Update Bot Text
       setBotText(data.response);
-
-      // 🔊 Read out loud (ensure browser allows autoplay)
-      speakTamil(data.response);
+      speakTamil(data.response); // Triggers audio + animation
 
     } catch (err) {
       console.error(err);
@@ -167,9 +181,9 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
         />
       </div>
 
-      <div className={`avatar-wrapper ${isHovering ? 'hovering' : ''} ${isSpeaking ? 'speaking' : ''}`}>
+      {/* Main Avatar Wrapper */}
+      <div className={`avatar-wrapper ${isHovering ? 'hovering' : ''} ${isAnimating ? 'speaking' : ''}`}>
         
-        {/* Video Loop */}
         <div className="avatar-video-wrapper">
           <video ref={videoRef} className="avatar-video" autoPlay loop muted>
             <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
@@ -187,11 +201,11 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
           {listening ? '🛑' : '🎤'}
         </button>
 
-        {/* 🗨️ CHAT AREA */}
-        <div className="chat-area">
+        {/* 🗨️ CHAT BUBBLES (Positioned Absolute to be visible) */}
+        <div className="floating-chat-area">
           {userText && (
             <div className="chat-bubble user">
-              <strong>நீங்க:</strong> {userText}
+              <strong>நீங்கள்:</strong> {userText}
             </div>
           )}
 
