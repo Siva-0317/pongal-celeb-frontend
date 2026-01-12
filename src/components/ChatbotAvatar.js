@@ -61,7 +61,7 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
           muted
           style={{ borderColor: config.accentColor }}
         >
-          <source src={`${process.env.PUBLIC_URL}/videos/chatbot-avatar.mp4`} type="video/mp4" />
+          <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -72,12 +72,6 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
 
         {/* Interaction pulse (shows on hover) */}
         {isHovering && <div className="interaction-pulse" style={{ borderColor: config.accentColor }} />}
-      </div>
-
-      {/* Placeholder for video - will be added later */}
-      <div className="video-placeholder" style={{ borderColor: config.accentColor }}>
-        <p>Video Animation</p>
-        <p style={{ fontSize: '12px', opacity: 0.6 }}>Coming soon...</p>
       </div>
     </div>
   );

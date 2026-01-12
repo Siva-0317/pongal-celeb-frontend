@@ -221,3 +221,8 @@
   border-color: var(--accent-color);
   color: var(--accent-color);
 }
+
+/* Video source */
+.video-source {
+  display: none;
+}
