@@ -43,14 +43,14 @@ body {
 /* Easwari Logo (Left) */
 .header-logo-left {
   height: 80px;
-  max-width: 220px;
+  max-width: 200px;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(0,212,255,0.4));
 }
 
 /* ACE Logo (Right) */
 .header-logo-right {
-  height: 100px;
+  height: 120px;
   max-width: 180px;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
