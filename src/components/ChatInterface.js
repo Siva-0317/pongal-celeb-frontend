@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import './ChatInterface.css';
+import './ChatInterface.css'; // Make sure you have the CSS from previous steps
 
 const API_URL = 'https://pongal-celeb.onrender.com';
 
@@ -10,98 +10,78 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  // --- AUTO-SCROLL ---
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // --- 🎤 LISTENS FOR VOICE INPUT FROM APP.JS ---
+  // Handle Voice Input from App.js
   useEffect(() => {
     if (externalInput) {
       handleSend(externalInput);
-      setVoiceInput(''); // Clear the bridge state
+      setVoiceInput('');
     }
   }, [externalInput]);
 
-  // --- 🔊 ROBUST AUDIO FUNCTION ---
-  // --- 🔊 ROBUST AUDIO FUNCTION ---
+  // --- 🔊 FIXED AUDIO FUNCTION ---
   const speakTamil = (text) => {
-    // 1. Basic check
-    if (!window.speechSynthesis) {
-      console.error("Browser does not support TTS");
-      return;
-    }
-
-    // 2. Cancel any ongoing speech
+    // 1. Safety Check
+    if (!window.speechSynthesis) return;
+    
+    // 2. Clear any stuck audio queue
     window.speechSynthesis.cancel();
 
-    // 3. Helper to actually speak
-    const play = () => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'ta-IN'; 
-      utterance.rate = 0.9; 
-      utterance.volume = 1.0; 
-      utterance.pitch = 1.0;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ta-IN';
+    utterance.rate = 1.0;  // Normal speed
+    utterance.volume = 1.0; // Max volume
 
-      // Try to get a Tamil voice (Google Tamil, Microsoft Tamil, etc.)
+    // 3. Voice Selection (Crucial for Chrome)
+    const setVoice = () => {
       const voices = window.speechSynthesis.getVoices();
-      const tamilVoice = voices.find(v => v.lang.includes('ta') || v.lang.includes('Tamil'));
+      // Look for Google Tamil or any Tamil
+      const tamilVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('ta')) 
+                      || voices.find(v => v.lang.includes('ta'));
       
-      if (tamilVoice) {
-        utterance.voice = tamilVoice;
-        console.log("Using Voice:", tamilVoice.name);
-      } else {
-        console.warn("No Tamil voice found, using default.");
-      }
-
-      // Sync Lips
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = (e) => {
-        console.error("Audio Error:", e);
-        setIsSpeaking(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
+      if (tamilVoice) utterance.voice = tamilVoice;
     };
 
-    // 4. Handle Chrome's async voice loading
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = play;
+    if (window.speechSynthesis.getVoices().length > 0) {
+      setVoice();
     } else {
-      play();
+      window.speechSynthesis.onvoiceschanged = setVoice;
     }
+
+    // 4. Lip Sync Events
+    utterance.onstart = () => { console.log("Speaking started..."); setIsSpeaking(true); };
+    utterance.onend = () => { console.log("Speaking ended."); setIsSpeaking(false); };
+    utterance.onerror = (e) => { console.error("Audio Error:", e); setIsSpeaking(false); };
+
+    // 5. Speak!
+    window.speechSynthesis.speak(utterance);
   };
 
-  // --- SEND LOGIC ---
-  const handleSend = async (textToSend) => {
-    const msg = textToSend || input;
-    if (!msg.trim()) return;
+  const handleSend = async (textOverride) => {
+    const text = textOverride || input;
+    if (!text.trim()) return;
 
-    // 1. Add User Message
-    const userMsg = { role: 'user', content: msg };
+    const userMsg = { role: 'user', content: text };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
     setEmotion('thinking');
 
     try {
-      // 2. Call Backend
-      const res = await axios.post(`${API_URL}/chat`, { message: msg });
-      
+      const res = await axios.post(`${API_URL}/chat`, { message: text });
       const botResponse = res.data.response;
-      const botEmotion = res.data.emotion || 'happy';
-
-      // 3. Add Bot Message
+      
       setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
-      setEmotion(botEmotion);
-
-      // 4. PLAY AUDIO
+      setEmotion(res.data.emotion || 'happy');
+      
+      // CALL AUDIO IMMEDIATELY
       speakTamil(botResponse);
 
     } catch (err) {
-      console.error("Backend Error:", err);
-      setMessages(prev => [...prev, { role: 'bot', content: "மன்னிக்கவும், சர்வர் பதில் அளிக்கவில்லை." }]);
+      setMessages(prev => [...prev, { role: 'bot', content: "Error connecting to server." }]);
       setEmotion('sad');
     } finally {
       setIsLoading(false);
@@ -110,6 +90,7 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
 
   return (
     <div className="chat-interface-container">
+      {/* Messages Area */}
       <div className="chat-window">
         {messages.map((msg, idx) => (
           <div key={idx} className={`message-row ${msg.role}`}>
@@ -118,18 +99,19 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
             </div>
           </div>
         ))}
-        {isLoading && <div className="loading-dots">...</div>}
+        {isLoading && <div className="loading-dots">Bot is typing...</div>}
         <div ref={chatEndRef} />
       </div>
 
+      {/* Input Area */}
       <div className="input-area">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend(input)}
-          placeholder="Type or use the Mic above..."
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          placeholder="Type your question here..."
         />
-        <button onClick={() => handleSend(input)}>➤</button>
+        <button onClick={() => handleSend()}>Send</button>
       </div>
     </div>
   );

@@ -4,40 +4,59 @@ import ChatInterface from './components/ChatInterface';
 import './App.css';
 
 function App() {
-  // 1. States for Avatar Animation (Lip-sync & Emotion)
   const [emotion, setEmotion] = useState('neutral');
   const [isSpeaking, setIsSpeaking] = useState(false);
-
-  // 2. NEW: State to "Bridge" Voice Input (Avatar -> ChatInterface)
   const [voiceInput, setVoiceInput] = useState('');
 
-  // 3. Handler: When Avatar hears something, save it here
   const handleMicInput = (text) => {
-    console.log("App received voice:", text);
-    setVoiceInput(text); // This triggers the update in ChatInterface
+    console.log("App received:", text);
+    setVoiceInput(text);
   };
 
   return (
     <div className="App">
-      {/* Top: Avatar Section */}
-      <div className="avatar-section">
-        <ChatbotAvatar 
-          emotion={emotion} 
-          isSpeaking={isSpeaking} 
-          onMicInput={handleMicInput} // Pass the handler to the Avatar
+      {/* === LEFT SIDE: Avatar, Logos, Mic === */}
+      <div className="left-panel">
+        
+        {/* LOGOS (Restored) */}
+        <div className="logos-container">
+          <img 
+            src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png" 
+            className="logo left-logo" 
+            alt="EEC Logo" 
+          />
+          <img 
+            src="https://i.ibb.co/wFFkzGVR/ACE.png" 
+            className="logo right-logo" 
+            alt="ACE Logo" 
+          />
+        </div>
+
+        {/* AVATAR + MIC */}
+        <div className="avatar-wrapper">
+          <ChatbotAvatar 
+            emotion={emotion} 
+            isSpeaking={isSpeaking} 
+            onMicInput={handleMicInput} 
+          />
+        </div>
+
+        {/* CUTE TEXT (Restored) */}
+        <div className="cute-text-box">
+          Chatbot-க்கு Hi சொல்லியாச்சா? 😄<br/>
+          பொங்கல் சாப்பிட்டாச்சா? 🌾
+        </div>
+      </div>
+
+      {/* === RIGHT SIDE: Chat Window === */}
+      <div className="right-panel">
+        <ChatInterface 
+          setEmotion={setEmotion}
+          setIsSpeaking={setIsSpeaking}
+          externalInput={voiceInput}
+          setVoiceInput={setVoiceInput}
         />
       </div>
-      
-      {/* Bottom: Chat Interface */}
-      <ChatInterface
-        // Controls for the Avatar
-        setEmotion={setEmotion}
-        setIsSpeaking={setIsSpeaking}
-        
-        // The Bridge Props
-        externalInput={voiceInput}    // Pass the voice text down
-        setVoiceInput={setVoiceInput} // Allow clearing it after sending
-      />
     </div>
   );
 }

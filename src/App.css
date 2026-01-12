@@ -1,88 +1,92 @@
-/* --- 1. GLOBAL RESET & BODY (Your existing style) --- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* --- GLOBAL --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  /* Your nice dark background */
-  background: radial-gradient(ellipse at center, #0a0a1a 0%, #1a1a2e 70%, #16213e 100%);
-  color: #fff;
-  overflow: hidden; /* 🔒 LOCKS THE PAGE (Fixes logos disappearing) */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0b1120;
   height: 100vh;
+  overflow: hidden; /* Prevent full page scroll */
 }
 
-/* --- 2. MAIN CONTAINER LAYOUT --- */
 .App {
+  display: flex;
+  flex-direction: row; /* ⬅️ SIDE BY SIDE LAYOUT */
   height: 100vh;
   width: 100vw;
-  display: flex;
-  flex-direction: column; /* Stacks Avatar on top, Chat at bottom */
-  position: relative;
 }
 
-/* --- 3. AVATAR SECTION (Top Area) --- */
-.avatar-section {
-  flex: 1; /* Takes all available space (pushes chat to bottom) */
+/* --- LEFT PANEL (Avatar Side) --- */
+.left-panel {
+  flex: 1; /* Takes 50% width */
+  background: radial-gradient(circle at center, #1a2a3a 0%, #0b1120 100%);
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
-  overflow: hidden; /* Ensures video doesn't spill out */
-  
-  /* Your requested background for the area behind the avatar */
-  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.08) 0%, transparent 60%);
+  border-right: 1px solid rgba(0, 212, 255, 0.1);
 }
 
-/* --- 4. CHAT INTERFACE CONTAINER (Bottom Area) --- */
-.chat-interface-container {
-  flex: 0 0 auto; /* Don't stretch, just take the height it needs */
-  width: 100%;
-  max-width: 900px; /* Keeps it readable on wide screens */
-  margin: 0 auto;
-  padding-bottom: 20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  z-index: 20; /* Ensures chat sits on top of any background effects */
-}
-
-/* --- 5. SCROLLING FIX FOR MESSAGES --- */
-/* This forces ONLY the messages to scroll, keeping logos fixed */
-.chat-window {
-  max-height: 35vh; /* Limit height to 35% of screen */
-  overflow-y: auto; /* Allow scroll inside this box */
-  padding-right: 10px; /* Space for scrollbar */
-  margin-bottom: 15px;
-  
-  /* Modern Scrollbar Styling */
-  scrollbar-width: thin;
-  scrollbar-color: #00d4ff #0b1120;
-}
-
-/* Chrome/Safari Scrollbar */
-.chat-window::-webkit-scrollbar {
-  width: 6px;
-}
-
-.chat-window::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.chat-window::-webkit-scrollbar-thumb {
-  background-color: #00d4ff;
-  border-radius: 4px;
-}
-
-/* --- 6. CANVAS (Particles/Effects) --- */
-canvas {
-  display: block;
+/* Logos Positioned Inside Left Panel */
+.logos-container {
   position: absolute;
-  top: 0;
+  top: 20px;
   left: 0;
   width: 100%;
-  height: 100%;
-  pointer-events: none; /* Lets clicks pass through to buttons */
+  padding: 0 30px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.logo {
+  height: 50px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+}
+
+.right-logo { height: 60px; }
+
+/* Wrapper to center Avatar */
+.avatar-wrapper {
+  transform: scale(0.9); /* Slightly smaller to fit nicely */
+}
+
+/* The Cute Text Box */
+.cute-text-box {
+  margin-top: 30px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid #00d4ff;
+  color: #fff;
+  padding: 15px 25px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+  animation: floatText 3s ease-in-out infinite;
+}
+
+@keyframes floatText {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* --- RIGHT PANEL (Chat Side) --- */
+.right-panel {
+  flex: 1; /* Takes 50% width */
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Chat sticks to bottom */
+  padding: 40px;
+}
+
+/* --- RESPONSIVE (Stack on Mobile) --- */
+@media (max-width: 768px) {
+  .App { flex-direction: column; }
+  .left-panel { flex: 0 0 60%; } /* Avatar takes top 60% */
+  .right-panel { flex: 1; padding: 10px; }
+  .logos-container { padding: 0 10px; }
+  .logo { height: 35px; }
 }
