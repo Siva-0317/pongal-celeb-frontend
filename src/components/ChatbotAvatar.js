@@ -10,7 +10,7 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
     neutral: {
       bgColor: '#1a2a3a',
       accentColor: '#00d4ff',
-      description: 'Chatbot-க்கு Hi சொல்லிட்டாச்சா 😄 பொங்கல் சாப்பிட்டாச்சா?'
+      description: 'Chatbot-க்கு Hi சொல்லியாச்சா 😄 பொங்கல் சாப்பிட்டாச்சா? 🌾'
     },
     happy: {
       bgColor: '#1a3a2a',
