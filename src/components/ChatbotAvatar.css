@@ -119,3 +119,31 @@
     max-height: 36px;
   }
 }
+
+/* 🎤 MIC BUTTON */
+.mic-btn {
+  margin-top: 10px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent-color);
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0,212,255,0.6);
+  transition: transform 0.2s ease;
+}
+
+.mic-btn:hover {
+  transform: scale(1.1);
+}
+
+.mic-btn.listening {
+  animation: mic-pulse 1s infinite;
+}
+
+@keyframes mic-pulse {
+  0% { box-shadow: 0 0 10px var(--accent-color); }
+  50% { box-shadow: 0 0 30px var(--accent-color); }
+  100% { box-shadow: 0 0 10px var(--accent-color); }
+}
