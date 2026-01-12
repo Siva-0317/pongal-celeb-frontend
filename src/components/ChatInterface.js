@@ -19,6 +19,11 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   useEffect(() => {
     if (externalInput) {
       const tamilDisplay = convertToTamil(externalInput);
+      // Show Tamil version of voice input immediately
+      const userMsg = { role: 'user', content: tamilDisplay };
+      setMessages(prev => [...prev, userMsg]);
+
+      // Send original English to backend
       handleSend(externalInput, tamilDisplay);
       setVoiceInput('');
     }
@@ -27,45 +32,43 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   // --- TRANSLITERATION HELPER ---
   const convertToTamil = (text) => {
     if (!text) return "";
-    const lower = text.toLowerCase().trim();
     const dictionary = {
       "hi": "வணக்கம்", "hello": "வணக்கம்", "pongal": "பொங்கல்",
       "happy": "இனிய", "menu": "உணவு பட்டியல்", "food": "உணவு",
       "eat": "சாப்பிடு", "thanks": "நன்றி", "what": "என்ன",
-      "is": "இருக்கிறது", "special": "சிறப்பு"
+      "is": "இருக்கிறது", "special": "சிறப்பு", "tell": "சொல்லுங்கள்",
+      "me": "எனக்கு", "about": "பற்றி", "come": "வாருங்கள்"
     };
-    return text.split(" ").map(word => dictionary[word.toLowerCase()] || word).join(" ");
+    return text
+      .toLowerCase()
+      .trim()
+      .split(" ")
+      .map(word => dictionary[word] || word)
+      .join(" ");
   };
 
-const speakTamil = async (text) => {
-  try {
-    setIsSpeaking(true);
+  // --- TTS AUDIO ---
+  const speakTamil = async (text) => {
+    try {
+      setIsSpeaking(true);
+      const res = await fetch(`${API_URL}/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
 
-    // Call backend /tts
-    const res = await fetch("https://pongal-celeb.onrender.com/tts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
+      if (!res.ok) throw new Error("TTS request failed");
 
-    // Backend returns an MP3 file
-    if (!res.ok) throw new Error("TTS request failed");
-
-    // Convert response to a blob
-    const blob = await res.blob();
-    const audioUrl = URL.createObjectURL(blob);
-
-    // Play audio
-    const audio = new Audio(audioUrl);
-    audio.play();
-    audio.onended = () => setIsSpeaking(false);
-
-  } catch (err) {
-    console.error("TTS Error:", err);
-    setIsSpeaking(false);
-  }
-};
-
+      const blob = await res.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+      audio.onended = () => setIsSpeaking(false);
+    } catch (err) {
+      console.error("TTS Error:", err);
+      setIsSpeaking(false);
+    }
+  };
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
@@ -74,27 +77,29 @@ const speakTamil = async (text) => {
 
     if (!rawText.trim()) return;
 
-    // Show User Message
-    const userMsg = { role: 'user', content: displayText };
-    setMessages(prev => [...prev, userMsg]);
+    // Show User Message (already shown for voice input)
+    if (!msgOverride) {
+      const userMsg = { role: 'user', content: displayText };
+      setMessages(prev => [...prev, userMsg]);
+    }
+
     setInput('');
     setIsLoading(true);
     setEmotion('thinking');
 
     try {
-      // Call Backend
       const res = await axios.post(`${API_URL}/chat`, { message: rawText });
       const botResponse = res.data.response;
-      
-      // Show Bot Response
+
       setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
       setEmotion(res.data.emotion || 'happy');
 
-      // PLAY AUDIO
       speakTamil(botResponse);
-
     } catch (err) {
-      setMessages(prev => [...prev, { role: 'bot', content: "மன்னிக்கவும், சர்வர் பதில் அளிக்கவில்லை." }]);
+      setMessages(prev => [...prev, {
+        role: 'bot',
+        content: "மன்னிக்கவும், சர்வர் பதில் அளிக்கவில்லை."
+      }]);
       setEmotion('sad');
     } finally {
       setIsLoading(false);
@@ -108,10 +113,8 @@ const speakTamil = async (text) => {
           <div key={idx} className={`message-row ${msg.role}`}>
             <div className={`chat-bubble ${msg.role}`}>
               {msg.content}
-              
-              {/* 🔊 ADDED: Replay Button for Bot Messages */}
               {msg.role === 'bot' && (
-                <button 
+                <button
                   className="audio-replay-btn"
                   onClick={() => speakTamil(msg.content)}
                   title="Read Aloud"
