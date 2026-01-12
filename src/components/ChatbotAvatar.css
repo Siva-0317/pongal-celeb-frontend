@@ -23,7 +23,7 @@
 }
 
 .avatar-wrapper.hovering {
-  transform: scale(1.55);
+  transform: scale(1.05);
 }
 
 .avatar-wrapper.speaking {
@@ -31,8 +31,8 @@
 }
 
 @keyframes speak-pulse {
-  0%, 100% { transform: scale(4); }
-  50% { transform: scale(1.08); }
+  0%, 100% { transform: scale(3); }
+  50% { transform: scale(3.08); }
 }
 
 /* Avatar SVG */
