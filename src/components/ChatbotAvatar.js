@@ -1,27 +1,37 @@
 import React, { useRef, useState } from 'react';
 import './ChatbotAvatar.css';
 
-const ChatbotAvatar = ({ emotion = 'neutral' }) => {
-  const avatarRef = useRef(null);
+const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   const videoRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const [isHovering, setIsHovering] = useState(false);
   const [listening, setListening] = useState(false);
   const [userText, setUserText] = useState('');
   const [botText, setBotText] = useState('');
-  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const emotionConfig = {
     neutral: {
-      bgColor: '#1a2a3a',
       accentColor: '#00d4ff',
-      description: '🎤 பேசுங்க… Pongal Bot கேட்குது 🌾'
+      description: 'Chatbot-க்கு Hi சொல்லியாச்சா 😄 பொங்கல் சாப்பிட்டாச்சா? 🌾'
+    },
+    happy: {
+      accentColor: '#00ffcc',
+      description: 'இனிய பதில் 😄'
+    },
+    excited: {
+      accentColor: '#ffaa00',
+      description: 'ரொம்ப சந்தோஷம்!'
+    },
+    thinking: {
+      accentColor: '#bb88ff',
+      description: 'சிந்திக்கிறேன்...'
     }
   };
 
-  const config = emotionConfig.neutral;
+  const config = emotionConfig[emotion] || emotionConfig.neutral;
 
-  /* 🎤 MIC → TEXT */
+  /* 🎤 MIC */
   const startListening = () => {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -32,19 +42,19 @@ const ChatbotAvatar = ({ emotion = 'neutral' }) => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-IN';
+    recognition.lang = 'en-IN'; // Tanglish friendly
     recognition.interimResults = false;
 
+    recognitionRef.current = recognition;
     setListening(true);
 
     recognition.start();
 
-    recognition.onresult = async (event) => {
-      const spokenText = event.results[0][0].transcript;
-      setUserText(spokenText);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      setUserText(transcript);
       setListening(false);
-
-      await sendToBackend(spokenText);
+      sendToBackend(transcript);
     };
 
     recognition.onerror = () => {
@@ -52,7 +62,7 @@ const ChatbotAvatar = ({ emotion = 'neutral' }) => {
     };
   };
 
-  /* 🌐 SEND TO BACKEND */
+  /* 🌐 BACKEND */
   const sendToBackend = async (text) => {
     try {
       const res = await fetch('https://pongal-celeb.onrender.com/chat', {
@@ -64,87 +74,71 @@ const ChatbotAvatar = ({ emotion = 'neutral' }) => {
       const data = await res.json();
       setBotText(data.response);
       speakTamil(data.response);
-    } catch (err) {
-      setBotText('Server error 😢');
+    } catch (e) {
+      setBotText('சர்வர் பிழை 😢');
     }
   };
 
-  /* 🔊 TAMIL VOICE OUTPUT */
+  /* 🔊 TAMIL VOICE */
   const speakTamil = (text) => {
-    const synth = window.speechSynthesis;
     const utterance = new SpeechSynthesisUtterance(text);
-
     utterance.lang = 'ta-IN';
-    utterance.rate = 1;
-    utterance.pitch = 1;
+    utterance.rate = 1.05;
+    utterance.pitch = 1.1;
 
-    setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-
-    synth.cancel();
-    synth.speak(utterance);
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
   };
 
   return (
     <div
       className="avatar-container"
-      ref={avatarRef}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       style={{ '--accent-color': config.accentColor }}
     >
-      {/* LOGOS */}
+      {/* Logos */}
       <div className="frame-logos">
         <img
           src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png"
-          className="frame-logo"
+          className="frame-logo left"
           alt="EEC"
         />
         <img
           src="https://i.ibb.co/wFFkzGVR/ACE.png"
-          className="frame-logo"
+          className="frame-logo right"
           alt="ACE"
         />
       </div>
 
-      {/* AVATAR */}
-      <div className={`avatar-wrapper ${isSpeaking ? 'speaking' : ''}`}>
-        <video
-          ref={videoRef}
-          className="avatar-video"
-          autoPlay
-          loop
-          muted
-        >
-          <source
-            src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`}
-            type="video/mp4"
-          />
-        </video>
-
-        {isHovering && <div className="interaction-pulse" />}
-
-        <div className="avatar-status">
-          {config.description}
+      <div className={`avatar-wrapper ${isHovering ? 'hovering' : ''} ${isSpeaking ? 'speaking' : ''}`}>
+        <div className="avatar-video-wrapper">
+          <video ref={videoRef} className="avatar-video" autoPlay loop muted>
+            <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
+          </video>
+          {isHovering && <div className="interaction-pulse" />}
         </div>
 
-        {/* 🎤 MIC BUTTON */}
+        <div className="avatar-status">{config.description}</div>
+
+        {/* 🎤 MIC */}
         <button
-          className={`mic-btn ${listening ? 'active' : ''}`}
+          className={`mic-btn ${listening ? 'listening' : ''}`}
           onClick={startListening}
         >
           🎤
         </button>
 
-        {/* 💬 CHAT DISPLAY */}
+        {/* 🗨️ SPOKEN TEXT */}
         {userText && (
-          <div className="chat user">
-            <strong>You:</strong> {userText}
+          <div className="chat-bubble user">
+            <strong>நீங்க:</strong> {userText}
           </div>
         )}
 
+        {/* 🤖 BOT RESPONSE */}
         {botText && (
-          <div className="chat bot">
+          <div className="chat-bubble bot">
             <strong>Bot:</strong> {botText}
           </div>
         )}
