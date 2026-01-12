@@ -79,3 +79,25 @@
   cursor: pointer;
   font-weight: bold;
 }
+
+.chat-bubble {
+  position: relative; /* Needed for button positioning */
+  padding-right: 35px; /* Make space for the icon */
+}
+
+.audio-replay-btn {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.audio-replay-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}

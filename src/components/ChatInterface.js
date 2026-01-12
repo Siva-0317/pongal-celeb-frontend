@@ -15,113 +15,104 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // --- HANDLE VOICE INPUT FROM AVATAR ---
+  // --- HANDLE VOICE INPUT ---
   useEffect(() => {
     if (externalInput) {
-      // Convert spoken English to Tamil for display
       const tamilDisplay = convertToTamil(externalInput);
       handleSend(externalInput, tamilDisplay);
       setVoiceInput('');
     }
   }, [externalInput]);
 
-  // --- 🔤 TRANSLITERATION HELPER (English -> Tamil) ---
+  // --- TRANSLITERATION HELPER ---
   const convertToTamil = (text) => {
     if (!text) return "";
     const lower = text.toLowerCase().trim();
-    
     const dictionary = {
-      "hi": "வணக்கம்",
-      "hello": "வணக்கம்",
-      "pongal": "பொங்கல்",
-      "happy": "இனிய",
-      "menu": "உணவு பட்டியல்",
-      "food": "உணவு",
-      "eat": "சாப்பிடு",
-      "thanks": "நன்றி",
-      "what": "என்ன",
-      "is": "இருக்கிறது",
-      "special": "சிறப்பு"
+      "hi": "வணக்கம்", "hello": "வணக்கம்", "pongal": "பொங்கல்",
+      "happy": "இனிய", "menu": "உணவு பட்டியல்", "food": "உணவு",
+      "eat": "சாப்பிடு", "thanks": "நன்றி", "what": "என்ன",
+      "is": "இருக்கிறது", "special": "சிறப்பு"
     };
-
-    // Replace known words, keep others
     return text.split(" ").map(word => dictionary[word.toLowerCase()] || word).join(" ");
   };
 
-  // --- 🔊 BULLETPROOF AUDIO FIX ---
+  // --- 🔊 ULTIMATE AUDIO FIX ---
   const speakTamil = (text) => {
-    const synth = window.speechSynthesis;
-    if (!synth) return;
+    if (!window.speechSynthesis) {
+      console.error("Browser does not support TTS");
+      return;
+    }
 
-    // 1. Cancel active speech to prevent queue jams
-    synth.cancel();
+    // 1. Cancel any stuck audio
+    window.speechSynthesis.cancel();
 
-    // 2. Create the utterance
+    // 2. Setup the utterance
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ta-IN'; 
-    utterance.rate = 1.0; 
-    utterance.volume = 1.0;
+    utterance.rate = 0.9; 
+    utterance.volume = 1.0; 
 
-    // 3. Voice Selection (The tricky part)
-    const setVoice = () => {
-      const voices = synth.getVoices();
-      // Prioritize Google Tamil (Best quality) -> Any Tamil -> Any generic
-      const tamilVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('ta')) 
-                      || voices.find(v => v.lang.includes('ta'));
+    // 3. Force Voice Loading (The Secret Sauce)
+    const loadVoicesAndSpeak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Try to find a Tamil voice (Google's is best)
+      const tamilVoice = voices.find(v => v.name.includes('Tamil') || v.lang.includes('ta'));
       
       if (tamilVoice) {
         utterance.voice = tamilVoice;
-        console.log("Speaking with:", tamilVoice.name);
+        console.log("Speaking with voice:", tamilVoice.name);
+      } else {
+        console.warn("No specific Tamil voice found, using default.");
       }
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    if (synth.getVoices().length > 0) {
-      setVoice();
+    // Chrome needs this check
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
     } else {
-      synth.onvoiceschanged = setVoice;
+      loadVoicesAndSpeak();
     }
 
     // 4. Lip Sync Triggers
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = (e) => { console.error("Audio error", e); setIsSpeaking(false); };
-
-    // 5. SPEAK
-    synth.speak(utterance);
+    utterance.onerror = (e) => {
+      console.error("Audio Error:", e);
+      setIsSpeaking(false);
+    };
   };
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
-    // Determine what to send (to backend) and what to show (to user)
     const rawText = msgOverride || input;
     const displayText = displayOverride || convertToTamil(rawText);
 
     if (!rawText.trim()) return;
 
-    // 1. Show User Message (in TAMIL)
+    // Show User Message
     const userMsg = { role: 'user', content: displayText };
     setMessages(prev => [...prev, userMsg]);
-    
     setInput('');
     setIsLoading(true);
     setEmotion('thinking');
 
     try {
-      // 2. Send to Backend (English or Tamil, backend handles both)
+      // Call Backend
       const res = await axios.post(`${API_URL}/chat`, { message: rawText });
-      
       const botResponse = res.data.response;
-      const botEmotion = res.data.emotion || 'happy';
-
-      // 3. Show Bot Response
+      
+      // Show Bot Response
       setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
-      setEmotion(botEmotion);
+      setEmotion(res.data.emotion || 'happy');
 
-      // 4. PLAY AUDIO (Unlock browser audio)
+      // PLAY AUDIO
       speakTamil(botResponse);
 
     } catch (err) {
-      console.error(err);
       setMessages(prev => [...prev, { role: 'bot', content: "மன்னிக்கவும், சர்வர் பதில் அளிக்கவில்லை." }]);
       setEmotion('sad');
     } finally {
@@ -136,6 +127,17 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
           <div key={idx} className={`message-row ${msg.role}`}>
             <div className={`chat-bubble ${msg.role}`}>
               {msg.content}
+              
+              {/* 🔊 ADDED: Replay Button for Bot Messages */}
+              {msg.role === 'bot' && (
+                <button 
+                  className="audio-replay-btn"
+                  onClick={() => speakTamil(msg.content)}
+                  title="Read Aloud"
+                >
+                  🔊
+                </button>
+              )}
             </div>
           </div>
         ))}
