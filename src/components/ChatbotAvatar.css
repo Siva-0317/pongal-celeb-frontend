@@ -56,7 +56,7 @@
   left: 50%;
   width: 380px;           /* 380 + (8*2) */
   height: 380px;
-  transform: translate(-50%, -80%);
+  transform: translate(-50%, -30%);
   border-radius: 50%;
   border: 2px solid var(--accent-color);
   pointer-events: none;
