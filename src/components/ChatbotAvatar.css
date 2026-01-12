@@ -48,8 +48,8 @@
 
 /* Video element */
 .avatar-video {
-  width: 280px;
-  height: 280px;
+  width: 320px;
+  height: 320px;
   border: 2px solid var(--accent-color);
   border-radius: 50%;
   object-fit: cover;
