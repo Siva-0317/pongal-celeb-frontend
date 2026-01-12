@@ -48,9 +48,9 @@
 
 /* Video element */
 .avatar-video {
-  width: 320px;
-  height: 320px;
-  border: 2px solid var(--accent-color);
+  width: 380px;
+  height: 380px;
+  border: 8px solid var(--accent-color);
   border-radius: 50%;
   object-fit: cover;
   filter: drop-shadow(0 0 20px var(--accent-color));
