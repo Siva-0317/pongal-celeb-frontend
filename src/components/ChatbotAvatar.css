@@ -7,7 +7,7 @@
   display: flex;
   justify-content: center;
   min-height: 500px;
-  overflow: hidden; /* Keeps floating elements inside */
+  overflow: hidden;
 }
 
 /* ================= LOGOS ================= */
@@ -41,7 +41,7 @@
   flex-direction: column;
   align-items: center;
   gap: 35px;
-  position: relative; /* Anchor for absolute children */
+  position: relative;
   width: 100%;
 }
 
@@ -49,7 +49,7 @@
   position: relative;
   width: 380px;
   height: 380px;
-  z-index: 1; /* Video stays behind chat */
+  z-index: 1;
 }
 
 .avatar-video {
@@ -57,12 +57,8 @@
   height: 100%;
   border-radius: 50%;
   border: 8px solid var(--accent-color);
-  object-fit: cover; /* Ensures video fills the circle */
-  
-  /* --- FIX: Add Background Color --- */
-  background: radial-gradient(circle, #1a2a3a 0%, #000000 100%); /* Dark Blue to Black */
-  /* OR use a solid color if you prefer: background: #000; */
-  
+  object-fit: cover;
+  background: radial-gradient(circle, #1a2a3a 0%, #000000 100%);
   filter: drop-shadow(0 0 20px var(--accent-color));
   transition: transform 0.3s ease;
 }
@@ -80,21 +76,6 @@
   50% { transform: scale(1.06); }
 }
 
-/* ================= PERFECT PULSE ================= */
-.interaction-pulse {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid var(--accent-color);
-  animation: pulse-ring 2s ease-out infinite;
-  pointer-events: none;
-}
-
-@keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.5; }
-  100% { transform: scale(1.25); opacity: 0; }
-}
-
 /* ================= STATUS ================= */
 .avatar-status {
   font-size: 28px;
@@ -108,10 +89,10 @@
   color: #fff;
 }
 
-/* ================= NEW: FLOATING CHAT OVERLAY ================= */
+/* ================= FLOATING CHAT ================= */
 .floating-chat-area {
   position: absolute;
-  top: 40%; /* Position over the video */
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90%;
@@ -119,8 +100,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  z-index: 100; /* Ensure it is ON TOP of video */
-  pointer-events: none; /* Allows clicking through to video/mic */
+  z-index: 100;
+  pointer-events: none;
 }
 
 .chat-bubble {
@@ -129,21 +110,15 @@
   font-size: 16px;
   line-height: 1.4;
   font-weight: 500;
-  pointer-events: auto; /* Allows selecting text */
+  pointer-events: auto;
   box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   animation: popIn 0.3s ease-out forwards;
   width: fit-content;
   max-width: 85%;
 }
 
-@keyframes popIn {
-  from { opacity: 0; transform: translateY(10px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* User Bubble: Right Aligned */
 .chat-bubble.user {
-  background: rgba(0, 0, 0, 0.85); /* High contrast dark bg */
+  background: rgba(0, 0, 0, 0.85);
   border: 1px solid #00d4ff;
   color: #00d4ff;
   align-self: flex-end;
@@ -151,9 +126,8 @@
   border-bottom-right-radius: 2px;
 }
 
-/* Bot Bubble: Left Aligned */
 .chat-bubble.bot {
-  background: rgba(0, 0, 0, 0.85); /* High contrast dark bg */
+  background: rgba(0, 0, 0, 0.85);
   border: 1px solid #00ffcc;
   color: #00ffcc;
   align-self: flex-start;
@@ -173,7 +147,7 @@
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0,212,255,0.6);
   transition: transform 0.2s ease;
-  z-index: 50; /* Ensure clickable */
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,7 +159,7 @@
 
 .mic-btn.listening {
   animation: mic-pulse 1s infinite;
-  background: #ff4444; /* Visual feedback for recording */
+  background: #ff4444;
 }
 
 @keyframes mic-pulse {
@@ -195,10 +169,17 @@
 }
 
 /* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+  .avatar-video-wrapper {
+    width: 320px;
+    height: 320px;
+  }
+}
+
 @media (max-width: 768px) {
   .avatar-video-wrapper {
-    width: 300px;
-    height: 300px;
+    width: 280px;
+    height: 280px;
   }
 
   .frame-logo {
@@ -208,21 +189,5 @@
   .avatar-status {
     font-size: 20px;
     padding: 12px 18px;
-  }
-  
-  .chat-bubble {
-    font-size: 14px;
-    padding: 10px 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .avatar-video-wrapper {
-    width: 260px;
-    height: 260px;
-  }
-
-  .frame-logo {
-    max-height: 36px;
   }
 }

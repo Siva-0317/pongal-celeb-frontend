@@ -1,14 +1,15 @@
 /* Container for the chat area */
 .chat-interface-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1200px; /* allow wider screens */
   margin: 0 auto;
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 400px; /* Fixed height for scroll */
+  height: 100vh; /* full viewport height */
 }
 
+/* Chat window fills available space */
 .chat-window {
   flex: 1;
   overflow-y: auto;
@@ -39,17 +40,17 @@
   font-size: 16px;
   line-height: 1.5;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-  color: white; /* Text color */
+  color: white;
+  position: relative;
+  padding-right: 35px; /* space for replay icon */
 }
 
 .chat-bubble.user {
-  /* Solid Dark Blue for User */
   background-color: #005f73; 
   border-bottom-right-radius: 2px;
 }
 
 .chat-bubble.bot {
-  /* Solid Dark Green/Teal for Bot */
   background-color: #0a9396; 
   border-bottom-left-radius: 2px;
 }
@@ -59,6 +60,7 @@
   display: flex;
   gap: 10px;
   margin-top: 15px;
+  padding: 10px 0;
 }
 
 .input-area input {
@@ -80,11 +82,7 @@
   font-weight: bold;
 }
 
-.chat-bubble {
-  position: relative; /* Needed for button positioning */
-  padding-right: 35px; /* Make space for the icon */
-}
-
+/* Replay button */
 .audio-replay-btn {
   position: absolute;
   right: 5px;
@@ -94,10 +92,40 @@
   font-size: 16px;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.2s;
 }
 
 .audio-replay-btn:hover {
   opacity: 1;
   transform: scale(1.1);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .chat-interface-container {
+    padding: 10px;
+    height: 100vh;
+  }
+
+  .chat-bubble {
+    max-width: 90%;
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .input-area {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .input-area button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .chat-bubble {
+    font-size: 13px;
+    line-height: 1.4;
+  }
 }
