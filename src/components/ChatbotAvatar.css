@@ -231,3 +231,57 @@
 .video-source {
   display: none;
 }
+
+/* Make avatar-container the reference frame */
+.avatar-container {
+  position: relative;
+}
+
+/* Logos inside the blue frame */
+.frame-logos {
+  position: absolute;
+  top: 18px;
+  left: 0;
+  width: 100%;
+  padding: 0 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Individual logo styling */
+.frame-logo {
+  height: 70px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0, 212, 255, 0.4));
+}
+
+/* Fine-tune per logo if needed */
+.frame-logo.left {
+  align-self: flex-start;
+}
+
+.frame-logo.right {
+  align-self: flex-start;
+}
+
+/* Fix hover ring alignment */
+.avatar-wrapper {
+  position: relative;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .frame-logo {
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .frame-logo {
+    height: 42px;
+  }
+}
