@@ -41,8 +41,11 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
     >
       {/* 🔹 Logos INSIDE the blue frame */}
       <div className="frame-logos">
-        <img src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png" alt="eec logo"
-        className="EEC"> </img>
+        <img
+          src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png"
+          alt="Easwari Engineering College"
+          className="frame-logo left"
+        />
         <img
           src="https://i.ibb.co/wFFkzGVR/ACE.png"
           alt="ACE"
