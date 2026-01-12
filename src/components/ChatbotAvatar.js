@@ -42,12 +42,12 @@ return (
     {/* Top logos bar */}
     <div className="top-logos">
       <img
-        src={`${process.env.PUBLIC_URL}/logos/EASWARI-PONGAL.png`}
+        src={`/logos/EASWARI-PONGAL.png`}
         alt="Left Logo"
         className="logo left-logo"
       />
       <img
-        src={`${process.env.PUBLIC_URL}/logos/ACE.png`}
+        src={`/logos/ACE.png`}
         alt="Right Logo"
         className="logo right-logo"
       />
