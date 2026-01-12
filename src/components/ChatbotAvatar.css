@@ -32,7 +32,7 @@
 
 @keyframes speak-pulse {
   0%, 100% { transform: scale(3); }
-  50% { transform: scale(3.08); }
+  50% { transform: scale(-3.08); }
 }
 
 /* Avatar SVG */
