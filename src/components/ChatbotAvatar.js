@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './ChatbotAvatar.css';
-import Background from 'three/src/renderers/common/Background.js';
 
 const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   const avatarRef = useRef(null);
   const videoRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
+
 
   const emotionConfig = {
     neutral: {
@@ -26,12 +26,6 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
       eyeExpression: 'excited',
       description: 'Excited!'
     },
-    sad: {
-      bgColor: '#2a1a3a',
-      accentColor: '#6a7cff',
-      eyeExpression: 'sad',
-      description: 'Sorry about that...'
-    },
     thinking: {
       bgColor: '#2a2a3a',
       accentColor: '#bb88ff',
@@ -43,8 +37,22 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   const config = emotionConfig[emotion] || emotionConfig.neutral;
 
 
+return (
+  <>
+    {/* Top logos bar */}
+    <div className="top-logos">
+      <img
+        src={`${process.env.PUBLIC_URL}/logos/EASWARI-PONGAL.png`}
+        alt="Left Logo"
+        className="logo left-logo"
+      />
+      <img
+        src={`${process.env.PUBLIC_URL}/logos/ACE.png`}
+        alt="Right Logo"
+        className="logo right-logo"
+      />
+    </div>
 
-  return (
     <div 
       className="avatar-container"
       ref={avatarRef}
@@ -62,7 +70,10 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
           muted
           style={{ borderColor: config.accentColor }}
         >
-          <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
+          <source
+            src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`}
+            type="video/mp4"
+          />
           Your browser does not support the video tag.
         </video>
 
@@ -72,11 +83,16 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
         </div>
 
         {/* Interaction pulse (shows on hover) */}
-        {isHovering && <div className="interaction-pulse" style={{ borderColor: config.accentColor }} />}
+        {isHovering && (
+          <div
+            className="interaction-pulse"
+            style={{ borderColor: config.accentColor }}
+          />
+        )}
       </div>
     </div>
-  );
-};
+  </>
+);
 
 
 export default ChatbotAvatar;
