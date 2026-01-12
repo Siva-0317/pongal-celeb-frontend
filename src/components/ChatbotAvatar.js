@@ -41,16 +41,10 @@ return (
   <>
     {/* Top logos bar */}
     <div className="top-logos">
-      <img
-        src="https://ibb.co/PGN7spkn"
-        alt="Left Logo"
+      <img src="https://i.ibb.co/xqDpKvZ0/EASWARI-PONGAL.png" alt="EASWARI PONGAL" border="0"></img>
         className="logo left-logo"
-      />
-      <img
-        src="https://ibb.co/ZppjM45V"
-        alt="Right Logo"
+      <img src="https://i.ibb.co/wFFkzGVR/ACE.png" alt="ACE" border="0"></img>
         className="logo right-logo"
-      />
     </div>
 
     <div 
