@@ -37,7 +37,9 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
       "happy": "இனிய", "menu": "உணவு பட்டியல்", "food": "உணவு",
       "eat": "சாப்பிடு", "thanks": "நன்றி", "what": "என்ன",
       "is": "இருக்கிறது", "special": "சிறப்பு", "tell": "சொல்லுங்கள்",
-      "me": "எனக்கு", "about": "பற்றி", "come": "வாருங்கள்"
+      "me": "எனக்கு", "about": "பற்றி", "come": "வாருங்கள்",
+      "advantages": "நன்மைகள்", "benefits": "பலன்கள்", "festival": "பண்டிகை",
+      "celebration": "கொண்டாட்டம்"
     };
     return text
       .toLowerCase()
@@ -48,40 +50,39 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   };
 
   // --- TTS AUDIO ---
-  const speakTamil = async (text, speed = 1.2) => {
-  try {
-    setIsSpeaking(true);
-    const res = await fetch(`${API_URL}/tts`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
-    });
+  const speakTamil = async (text, speed = 1.1) => {
+    try {
+      setIsSpeaking(true);
+      const res = await fetch(`${API_URL}/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
 
-    if (!res.ok) throw new Error("TTS request failed");
+      if (!res.ok) throw new Error("TTS request failed");
 
-    const blob = await res.blob();
-    const audioUrl = URL.createObjectURL(blob);
-    const audio = new Audio(audioUrl);
+      const blob = await res.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
 
-    audio.playbackRate = speed; // control speed here
-    audio.play();
+      audio.playbackRate = speed; // control speed here
+      audio.play();
 
-    audio.onended = () => setIsSpeaking(false);
-  } catch (err) {
-    console.error("TTS Error:", err);
-    setIsSpeaking(false);
-  }
-};
-
+      audio.onended = () => setIsSpeaking(false);
+    } catch (err) {
+      console.error("TTS Error:", err);
+      setIsSpeaking(false);
+    }
+  };
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
     const rawText = msgOverride || input;
-    const displayText = displayOverride || convertToTamil(rawText);
+    const displayText = convertToTamil(rawText); // always convert to Tamil for display
 
     if (!rawText.trim()) return;
 
-    // Show User Message (already shown for voice input)
+    // Show User Message (Tamil only)
     if (!msgOverride) {
       const userMsg = { role: 'user', content: displayText };
       setMessages(prev => [...prev, userMsg]);
@@ -98,7 +99,7 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
       setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
       setEmotion(res.data.emotion || 'happy');
 
-      speakTamil(botResponse);
+      speakTamil(botResponse, 1.1); // slightly faster default
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'bot',
@@ -138,7 +139,7 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          placeholder="Type here..."
+          placeholder="இங்கே தட்டச்சு செய்யவும்..." // Tamil placeholder
         />
         <button onClick={() => handleSend()}>➤</button>
       </div>
