@@ -37,54 +37,53 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
     return text.split(" ").map(word => dictionary[word.toLowerCase()] || word).join(" ");
   };
 
-  // --- 🔊 ULTIMATE AUDIO FIX ---
-  const speakTamil = (text) => {
-    if (!window.speechSynthesis) {
-      console.error("Browser does not support TTS");
-      return;
-    }
+const speakTamil = (text) => {
+  if (!window.speechSynthesis) {
+    console.error("Browser does not support TTS");
+    return;
+  }
 
-    // 1. Cancel any stuck audio
-    window.speechSynthesis.cancel();
+  // Cancel any stuck audio
+  window.speechSynthesis.cancel();
 
-    // 2. Setup the utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ta-IN'; 
-    utterance.rate = 0.9; 
-    utterance.volume = 1.0; 
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "ta-IN"; 
+  utterance.rate = 0.9;
+  utterance.volume = 1.0;
 
-    // 3. Force Voice Loading (The Secret Sauce)
-    const loadVoicesAndSpeak = () => {
-      const voices = window.speechSynthesis.getVoices();
-      
-      // Try to find a Tamil voice (Google's is best)
-      const tamilVoice = voices.find(v => v.name.includes('Tamil') || v.lang.includes('ta'));
-      
-      if (tamilVoice) {
-        utterance.voice = tamilVoice;
-        console.log("Speaking with voice:", tamilVoice.name);
-      } else {
-        console.warn("No specific Tamil voice found, using default.");
-      }
+  const loadVoicesAndSpeak = () => {
+    const voices = window.speechSynthesis.getVoices();
+    console.log("Available voices:", voices);
 
-      window.speechSynthesis.speak(utterance);
-    };
+    // Look for Tamil voice
+    const tamilVoice = voices.find(
+      (v) => v.lang.toLowerCase().includes("ta") || v.name.toLowerCase().includes("tamil")
+    );
 
-    // Chrome needs this check
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
+    if (tamilVoice) {
+      utterance.voice = tamilVoice;
+      console.log("Speaking with voice:", tamilVoice.name);
     } else {
-      loadVoicesAndSpeak();
+      console.warn("No Tamil voice found, using default.");
     }
 
-    // 4. Lip Sync Triggers
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = (e) => {
-      console.error("Audio Error:", e);
-      setIsSpeaking(false);
-    };
+    window.speechSynthesis.speak(utterance);
   };
+
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
+  } else {
+    loadVoicesAndSpeak();
+  }
+
+  // Lip sync triggers
+  utterance.onstart = () => setIsSpeaking(true);
+  utterance.onend = () => setIsSpeaking(false);
+  utterance.onerror = (e) => {
+    console.error("Audio Error:", e);
+    setIsSpeaking(false);
+  };
+};
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
