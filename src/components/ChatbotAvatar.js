@@ -64,31 +64,49 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
 
   /* 🌐 BACKEND */
   const sendToBackend = async (text) => {
-    try {
-      const res = await fetch('https://pongal-celeb.onrender.com/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text })
-      });
+  try {
+    setBotText('...'); // loading indicator
 
-      const data = await res.json();
-      setBotText(data.response);
-      speakTamil(data.response);
-    } catch (e) {
-      setBotText('சர்வர் பிழை 😢');
-    }
-  };
+    const res = await fetch('https://pongal-celeb.onrender.com/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text })
+    });
+
+    const data = await res.json();
+
+    setBotText(data.response);
+
+    // 🔊 Must be inside user-trigger chain
+    setTimeout(() => speakTamil(data.response), 200);
+
+  } catch (err) {
+    setBotText('பிழை ஏற்பட்டுள்ளது 😢');
+  }
+};
 
   /* 🔊 TAMIL VOICE */
   const speakTamil = (text) => {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ta-IN';
-    utterance.rate = 1.05;
-    utterance.pitch = 1.1;
+  speechSynthesis.cancel();
 
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
-  };
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'ta-IN';
+  utterance.rate = 1;
+  utterance.pitch = 1.1;
+
+  // Force Tamil voice
+  const voices = speechSynthesis.getVoices();
+  const tamilVoice = voices.find(v =>
+    v.lang === 'ta-IN' || v.lang.includes('ta')
+  );
+
+  if (tamilVoice) {
+    utterance.voice = tamilVoice;
+  }
+
+  speechSynthesis.speak(utterance);
+};
+
 
   return (
     <div
@@ -130,18 +148,20 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
         </button>
 
         {/* 🗨️ SPOKEN TEXT */}
-        {userText && (
-          <div className="chat-bubble user">
-            <strong>நீங்க:</strong> {userText}
-          </div>
-        )}
+        <div className="chat-area">
+  {userText && (
+    <div className="chat-bubble user">
+      <strong>நீங்க:</strong> {userText}
+    </div>
+  )}
 
-        {/* 🤖 BOT RESPONSE */}
-        {botText && (
-          <div className="chat-bubble bot">
-            <strong>Bot:</strong> {botText}
-          </div>
-        )}
+  {botText && (
+    <div className="chat-bubble bot">
+      <strong>Bot:</strong> {botText}
+    </div>
+  )}
+</div>
+
       </div>
     </div>
   );

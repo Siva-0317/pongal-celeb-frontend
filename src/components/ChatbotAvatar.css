@@ -166,3 +166,30 @@
   background: rgba(0, 255, 180, 0.18);
   align-self: flex-end;
 }
+
+.chat-area {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 12px;
+}
+
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+.chat-bubble.user {
+  background: rgba(0, 212, 255, 0.18);
+  align-self: flex-start;
+}
+
+.chat-bubble.bot {
+  background: rgba(0, 255, 180, 0.22);
+  align-self: flex-end;
+}
