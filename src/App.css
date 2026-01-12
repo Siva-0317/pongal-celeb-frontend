@@ -1,48 +1,88 @@
-/* Ensure the app takes exactly full screen and doesn't scroll the body */
+/* --- 1. GLOBAL RESET & BODY (Your existing style) --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Your nice dark background */
+  background: radial-gradient(ellipse at center, #0a0a1a 0%, #1a1a2e 70%, #16213e 100%);
+  color: #fff;
+  overflow: hidden; /* 🔒 LOCKS THE PAGE (Fixes logos disappearing) */
+  height: 100vh;
+}
+
+/* --- 2. MAIN CONTAINER LAYOUT --- */
 .App {
   height: 100vh;
   width: 100vw;
-  background-color: #0b1120; /* Dark bg */
   display: flex;
-  flex-direction: column;
-  overflow: hidden; /* Stop the whole page from moving */
+  flex-direction: column; /* Stacks Avatar on top, Chat at bottom */
+  position: relative;
 }
 
-/* Avatar Section stays fixed at the top */
+/* --- 3. AVATAR SECTION (Top Area) --- */
 .avatar-section {
-  flex: 0 0 auto; /* Don't grow, don't shrink */
-  padding-top: 20px;
-  z-index: 10;
-}
-
-/* Chat Interface takes remaining space */
-.chat-interface-container {
-  flex: 1; /* Take all remaining height */
+  flex: 1; /* Takes all available space (pushes chat to bottom) */
   display: flex;
-  flex-direction: column;
-  min-height: 0; /* Crucial for scrolling to work inside flex items */
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
-  padding-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Ensures video doesn't spill out */
+  
+  /* Your requested background for the area behind the avatar */
+  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.08) 0%, transparent 60%);
 }
 
-/* Make the message list scrollable */
+/* --- 4. CHAT INTERFACE CONTAINER (Bottom Area) --- */
+.chat-interface-container {
+  flex: 0 0 auto; /* Don't stretch, just take the height it needs */
+  width: 100%;
+  max-width: 900px; /* Keeps it readable on wide screens */
+  margin: 0 auto;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  z-index: 20; /* Ensures chat sits on top of any background effects */
+}
+
+/* --- 5. SCROLLING FIX FOR MESSAGES --- */
+/* This forces ONLY the messages to scroll, keeping logos fixed */
 .chat-window {
-  flex: 1;
-  overflow-y: auto; /* SCROLL HERE ONLY */
-  padding: 10px 20px;
-  margin-bottom: 10px;
+  max-height: 35vh; /* Limit height to 35% of screen */
+  overflow-y: auto; /* Allow scroll inside this box */
+  padding-right: 10px; /* Space for scrollbar */
+  margin-bottom: 15px;
   
-  /* Scrollbar styling for a cool look */
+  /* Modern Scrollbar Styling */
   scrollbar-width: thin;
   scrollbar-color: #00d4ff #0b1120;
 }
 
+/* Chrome/Safari Scrollbar */
 .chat-window::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
+
+.chat-window::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
 .chat-window::-webkit-scrollbar-thumb {
   background-color: #00d4ff;
   border-radius: 4px;
+}
+
+/* --- 6. CANVAS (Particles/Effects) --- */
+canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Lets clicks pass through to buttons */
 }
