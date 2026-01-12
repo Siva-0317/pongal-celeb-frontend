@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import './ChatbotAvatar.css';
+import Background from 'three/src/renderers/common/Background.js';
 
 const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   const avatarRef = useRef(null);
@@ -77,4 +78,3 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   );
 };
 
-export default ChatbotAvatar;

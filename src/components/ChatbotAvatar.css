@@ -66,8 +66,8 @@
   letter-spacing: 0.5px;
   text-transform: uppercase;
   animation: status-glow 2s ease-in-out infinite;
-  background: rgba(0, 0, 0, 0.6);
-  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 30px 20px;
   border-radius: 10px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 212, 255, 0.2);
