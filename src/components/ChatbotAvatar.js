@@ -11,7 +11,7 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
       bgColor: '#1a2a3a',
       accentColor: '#00d4ff',
       eyeExpression: 'neutral',
-      description: 'Ready to help!'
+      description: 'பொங்கல் சாப்பிட்டாச்சா? Chatbot-க்கு Hi சொல்லிட்டாச்சா 😄'
     },
     happy: {
       bgColor: '#1a3a2a',
