@@ -1,188 +1,124 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './ChatInterface.css';
 
-// Using your Render Backend URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://pongal-celeb.onrender.com';
+const API_URL = 'https://pongal-celeb.onrender.com';
 
-const ChatInterface = ({ setEmotion, setIsSpeaking, conversationHistory, setConversationHistory }) => {
+const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion }) => {
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
 
-  // Auto-scroll to bottom when history changes
+  // --- AUTO-SCROLL ---
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversationHistory]);
+  }, [messages]);
 
-  // --- 1. LIVE TRANSLITERATION (English -> Tamil) ---
-  const handleInputChange = (e) => {
-    const val = e.target.value;
-    
-    // Dictionary for common Pongal words
-    const dictionary = {
-      "hi": "வணக்கம்",
-      "hello": "வணக்கம்",
-      "pongal": "பொங்கல்",
-      "happy": "இனிய",
-      "menu": "உணவு பட்டியல்",
-      "eat": "சாப்பிடு",
-      "food": "உணவு",
-      "sugarcane": "கரும்பு",
-      "sweet": "இனிப்பு",
-      "college": "கல்லூரி",
-      "celebration": "கொண்டாட்டம்",
-      "vadai": "வடை",
-      "payasam": "பாயசம்",
-      "thanks": "நன்றி"
-    };
+  // --- 🎤 LISTENS FOR VOICE INPUT FROM APP.JS ---
+  useEffect(() => {
+    if (externalInput) {
+      handleSend(externalInput);
+      setVoiceInput(''); // Clear the bridge state
+    }
+  }, [externalInput]);
 
-    // Check if the last character is a space (trigger replacement)
-    if (val.endsWith(' ')) {
-      const words = val.trim().split(' ');
-      const lastWord = words[words.length - 1].toLowerCase();
-      
-      if (dictionary[lastWord]) {
-        // Replace the last English word with Tamil
-        words[words.length - 1] = dictionary[lastWord];
-        setInput(words.join(' ') + ' '); // Rebuild string with trailing space
-        return;
-      }
+  // --- 🔊 ROBUST AUDIO FUNCTION ---
+  const speakTamil = (text) => {
+    if (!window.speechSynthesis) {
+      console.error("Browser does not support TTS");
+      return;
     }
 
-    setInput(val);
-  };
-
-  // --- 2. TEXT-TO-SPEECH HELPER ---
-  const speakTamil = (text) => {
-    if (!window.speechSynthesis) return;
-
-    // Cancel current audio
+    // 1. Cancel existing speech
     window.speechSynthesis.cancel();
 
+    // 2. Create utterance
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ta-IN'; 
-    utterance.rate = 1;
-    utterance.pitch = 1;
+    utterance.rate = 0.9;
+    utterance.volume = 1.0;
 
-    // Find Tamil Voice
-    const voices = window.speechSynthesis.getVoices();
-    const tamilVoice = voices.find(v => v.lang.includes('ta'));
-    if (tamilVoice) utterance.voice = tamilVoice;
-
-    // --- SYNC AVATAR WITH VOICE ---
-    utterance.onstart = () => {
-      setIsSpeaking(true);
+    // 3. Force Tamil Voice (Wait for voices to load)
+    const setVoice = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const tamilVoice = voices.find(v => v.lang.includes('ta') || v.lang.includes('Tamil'));
+      if (tamilVoice) utterance.voice = tamilVoice;
     };
+    
+    // Chrome loads voices asynchronously
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.onvoiceschanged = setVoice;
+    } else {
+      setVoice();
+    }
 
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setEmotion('neutral'); // Reset emotion after speaking
-    };
+    // 4. Lip Sync Triggers
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
 
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-    };
-
+    // 5. Speak
     window.speechSynthesis.speak(utterance);
   };
 
-  // --- 3. SEND MESSAGE ---
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  // --- SEND LOGIC ---
+  const handleSend = async (textToSend) => {
+    const msg = textToSend || input;
+    if (!msg.trim()) return;
 
-    // Add User Message to History
-    const userMessage = { role: 'user', content: input };
-    setConversationHistory(prev => [...prev, userMessage]);
-    
-    // Store current input for backend call, clear UI
-    const currentMessage = input;
+    // 1. Add User Message
+    const userMsg = { role: 'user', content: msg };
+    setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
     setEmotion('thinking');
 
     try {
-      // API Call
-      const response = await axios.post(`${API_URL}/chat`, {
-        message: currentMessage
-      });
-
-      const botResponseText = response.data.response;
-      const botEmotion = response.data.emotion || 'happy';
-
-      // Add Bot Message to History
-      const botMessage = { role: 'assistant', content: botResponseText };
-      setConversationHistory(prev => [...prev, botMessage]);
+      // 2. Call Backend
+      const res = await axios.post(`${API_URL}/chat`, { message: msg });
       
-      // Update Emotion
+      const botResponse = res.data.response;
+      const botEmotion = res.data.emotion || 'happy';
+
+      // 3. Add Bot Message
+      setMessages(prev => [...prev, { role: 'bot', content: botResponse }]);
       setEmotion(botEmotion);
-      
-      // Trigger Voice (Avatar will animate due to utterance.onstart above)
-      speakTamil(botResponseText);
 
-    } catch (error) {
-      console.error("Chat Error:", error);
+      // 4. PLAY AUDIO
+      speakTamil(botResponse);
+
+    } catch (err) {
+      console.error("Backend Error:", err);
+      setMessages(prev => [...prev, { role: 'bot', content: "மன்னிக்கவும், சர்வர் பதில் அளிக்கவில்லை." }]);
       setEmotion('sad');
-      
-      const errorMessage = { 
-        role: 'assistant', 
-        content: 'மன்னிக்கவும், சர்வர் இணைப்பு கிடைக்கவில்லை. (Server Error)' 
-      };
-      setConversationHistory(prev => [...prev, errorMessage]);
-      setIsSpeaking(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   return (
-    <div className="chat-container">
-      <div className="chat-messages">
-        {/* Show all messages (scrollable) or slice if you prefer compact */}
-        {conversationHistory.map((msg, idx) => (
-          <div key={idx} className={`message ${msg.role}`}>
-            <div className="message-content">
+    <div className="chat-interface-container">
+      <div className="chat-window">
+        {messages.map((msg, idx) => (
+          <div key={idx} className={`message-row ${msg.role}`}>
+            <div className={`chat-bubble ${msg.role}`}>
               {msg.content}
             </div>
           </div>
         ))}
-        
-        {isLoading && (
-          <div className="message assistant">
-            <div className="typing-indicator">
-              <span></span><span></span><span></span>
-            </div>
-          </div>
-        )}
+        {isLoading && <div className="loading-dots">...</div>}
         <div ref={chatEndRef} />
       </div>
-      
-      <div className="chat-input-container">
+
+      <div className="input-area">
         <input
           value={input}
-          onChange={handleInputChange} // Uses the new Transliteration handler
-          onKeyPress={handleKeyPress}
-          placeholder="Ask about Pongal menu... (Type 'pongal ')"
-          disabled={isLoading}
-          className="chat-input"
-          maxLength={150}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend(input)}
+          placeholder="Type or use the Mic above..."
         />
-        <button 
-          onClick={handleSend} 
-          disabled={isLoading || !input.trim()}
-          className="send-button"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-          </svg>
-        </button>
+        <button onClick={() => handleSend(input)}>➤</button>
       </div>
     </div>
   );
