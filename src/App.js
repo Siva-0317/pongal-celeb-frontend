@@ -21,13 +21,13 @@ function App() {
         <div className="header-bar">
           <img 
             src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png" 
-            className="header-logo left" 
+            className="header-logo-left" 
             alt="EEC Logo" 
           />
           <div className="header-text">Department of CSE</div>
           <img 
             src="https://i.ibb.co/wFFkzGVR/ACE.png" 
-            className="header-logo right" 
+            className="header-logo-right" 
             alt="ACE Logo" 
           />
         </div>
