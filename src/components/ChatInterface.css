@@ -1,5 +1,5 @@
 .chat-container {
-  height: 15vh; /* Super compact! */
+  height: 25vh; /* Super compact! */
   background: rgba(10, 10, 26, 0.95);
   backdrop-filter: blur(20px);
   border-top: 1px solid rgba(0, 212, 255, 0.3);
