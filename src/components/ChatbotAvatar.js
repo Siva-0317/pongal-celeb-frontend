@@ -37,9 +37,9 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
       ref={avatarRef}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
-      style={{ '--accent-color': config.accentColor, '--bg-color': config.bgColor }}
+      style={{ '--accent-color': config.accentColor }}
     >
-      {/* 🔹 Logos INSIDE the blue frame */}
+      {/* 🔹 TOP LOGOS */}
       <div className="frame-logos">
         <img
           src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png"
@@ -54,24 +54,29 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
       </div>
 
       <div className={`avatar-wrapper ${isHovering ? 'hovering' : ''} ${isSpeaking ? 'speaking' : ''}`}>
-        <video
-          ref={videoRef}
-          className="avatar-video"
-          autoPlay
-          loop
-          muted
-          style={{ borderColor: config.accentColor }}
-        >
-          <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
-        </video>
+        {/* Avatar Video */}
+        <div className="avatar-video-wrapper">
+          <video
+            ref={videoRef}
+            className="avatar-video"
+            autoPlay
+            loop
+            muted
+          >
+            <source
+              src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`}
+              type="video/mp4"
+            />
+          </video>
 
+          {/* Perfect pulse */}
+          {isHovering && <div className="interaction-pulse" />}
+        </div>
+
+        {/* Status */}
         <div className="avatar-status" style={{ color: config.accentColor }}>
           {config.description}
         </div>
-
-        {isHovering && (
-          <div className="interaction-pulse" style={{ borderColor: config.accentColor }} />
-        )}
       </div>
     </div>
   );
