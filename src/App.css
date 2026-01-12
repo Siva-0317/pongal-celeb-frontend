@@ -5,19 +5,19 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #0b1120;
   height: 100vh;
-  overflow: hidden; /* Prevent full page scroll */
+  overflow: hidden;
 }
 
 .App {
   display: flex;
-  flex-direction: row; /* ⬅️ SIDE BY SIDE LAYOUT */
+  flex-direction: row;
   height: 100vh;
   width: 100vw;
 }
 
 /* --- LEFT PANEL (Avatar Side) --- */
 .left-panel {
-  flex: 1; /* Takes 50% width */
+  flex: 1;
   background: radial-gradient(circle at center, #1a2a3a 0%, #0b1120 100%);
   display: flex;
   flex-direction: column;
@@ -27,32 +27,12 @@ body {
   border-right: 1px solid rgba(0, 212, 255, 0.1);
 }
 
-/* Logos Positioned Inside Left Panel */
-.logos-container {
-  position: absolute;
-  top: 20px;
-  left: 0;
-  width: 100%;
-  padding: 0 30px;
-  display: flex;
-  justify-content: space-between;
-  z-index: 10;
-}
-
-.logo {
-  height: 50px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-}
-
-.right-logo { height: 60px; }
-
-/* Wrapper to center Avatar */
+/* Avatar wrapper */
 .avatar-wrapper {
-  transform: scale(0.9); /* Slightly smaller to fit nicely */
+  transform: scale(0.9);
 }
 
-/* The Cute Text Box */
+/* Cute Text Box */
 .cute-text-box {
   margin-top: 30px;
   background: rgba(0, 0, 0, 0.6);
@@ -74,19 +54,17 @@ body {
 
 /* --- RIGHT PANEL (Chat Side) --- */
 .right-panel {
-  flex: 1; /* Takes 50% width */
+  flex: 1;
   background: rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
-  justify-content: flex-end; /* Chat sticks to bottom */
+  justify-content: flex-end;
   padding: 40px;
 }
 
-/* --- RESPONSIVE (Stack on Mobile) --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .App { flex-direction: column; }
-  .left-panel { flex: 0 0 60%; } /* Avatar takes top 60% */
+  .left-panel { flex: 0 0 60%; }
   .right-panel { flex: 1; padding: 10px; }
-  .logos-container { padding: 0 10px; }
-  .logo { height: 35px; }
 }

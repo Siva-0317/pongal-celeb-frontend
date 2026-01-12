@@ -5,6 +5,9 @@ const ChatbotAvatar = ({ emotion, isSpeaking, onMicInput }) => {
   const videoRef = useRef(null);
   const [listening, setListening] = useState(false);
 
+  // --- AUDIO UNLOCKER ---
+  // We play a silent sound immediately when you click MIC. 
+  // This "tricks" the browser into allowing audio later.
   const unlockAudio = () => {
     const synth = window.speechSynthesis;
     const utter = new SpeechSynthesisUtterance("");
@@ -13,13 +16,13 @@ const ChatbotAvatar = ({ emotion, isSpeaking, onMicInput }) => {
   };
 
   const startListening = () => {
-    unlockAudio();
+    unlockAudio(); // <--- CRITICAL FIX
 
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) return alert("Please use Google Chrome for Voice features.");
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'en-US';
+    recognition.lang = 'en-US'; // We listen in English
     recognition.interimResults = false;
 
     setListening(true);
@@ -29,7 +32,7 @@ const ChatbotAvatar = ({ emotion, isSpeaking, onMicInput }) => {
       const transcript = event.results[0][0].transcript;
       console.log("Mic heard:", transcript);
       setListening(false);
-      onMicInput(transcript);
+      onMicInput(transcript); // Send to App -> ChatInterface
     };
 
     recognition.onerror = () => setListening(false);
@@ -38,20 +41,16 @@ const ChatbotAvatar = ({ emotion, isSpeaking, onMicInput }) => {
 
   return (
     <div className="avatar-container">
-      {/* 🔧 LOGO BAR WITH CENTER TEXT */}
-      <div className="frame-logos">
-        <img src={`${process.env.PUBLIC_URL}/images/eec-logo.png`} className="frame-logo left" alt="EEC Logo" />
-        <div className="frame-text">Department of CSE</div>
-        <img src={`${process.env.PUBLIC_URL}/images/ace-logo.png`} className="frame-logo right" alt="ACE Logo" />
-      </div>
-
+      {/* Use a simple DIV wrapper or IMG if the Video is causing issues. 
+         But sticking to your video structure:
+      */}
       <div className={`avatar-wrapper ${isSpeaking ? 'speaking' : ''}`}>
         <div className="avatar-video-wrapper">
           <video ref={videoRef} className="avatar-video" autoPlay loop muted playsInline>
             <source src={`${process.env.PUBLIC_URL}/videos/pongal-chatbot.mp4`} type="video/mp4" />
           </video>
         </div>
-
+        
         <button 
           className={`mic-btn ${listening ? 'listening' : ''}`} 
           onClick={startListening}

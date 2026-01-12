@@ -17,22 +17,6 @@ function App() {
     <div className="App">
       {/* === LEFT SIDE: Avatar, Logos, Mic === */}
       <div className="left-panel">
-        
-        {/* LOGOS (Restored) */}
-        <div className="logos-container">
-          <img 
-            src="https://i.ibb.co/d4KrJrxv/eec-logo-finalized-1536x516-1.png" 
-            className="logo left-logo" 
-            alt="EEC Logo" 
-          />
-          <img 
-            src="https://i.ibb.co/wFFkzGVR/ACE.png" 
-            className="logo right-logo" 
-            alt="ACE Logo" 
-          />
-        </div>
-
-        {/* AVATAR + MIC */}
         <div className="avatar-wrapper">
           <ChatbotAvatar 
             emotion={emotion} 
@@ -41,7 +25,7 @@ function App() {
           />
         </div>
 
-        {/* CUTE TEXT (Restored) */}
+        {/* CUTE TEXT */}
         <div className="cute-text-box">
           Chatbot-க்கு Hi சொல்லியாச்சா? 😄<br/>
           பொங்கல் சாப்பிட்டாச்சா? 🌾
