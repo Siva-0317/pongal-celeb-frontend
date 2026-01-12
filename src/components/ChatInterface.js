@@ -48,27 +48,31 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   };
 
   // --- TTS AUDIO ---
-  const speakTamil = async (text) => {
-    try {
-      setIsSpeaking(true);
-      const res = await fetch(`${API_URL}/tts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
+  const speakTamil = async (text, speed = 1.2) => {
+  try {
+    setIsSpeaking(true);
+    const res = await fetch(`${API_URL}/tts`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
 
-      if (!res.ok) throw new Error("TTS request failed");
+    if (!res.ok) throw new Error("TTS request failed");
 
-      const blob = await res.blob();
-      const audioUrl = URL.createObjectURL(blob);
-      const audio = new Audio(audioUrl);
-      audio.play();
-      audio.onended = () => setIsSpeaking(false);
-    } catch (err) {
-      console.error("TTS Error:", err);
-      setIsSpeaking(false);
-    }
-  };
+    const blob = await res.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+
+    audio.playbackRate = speed; // control speed here
+    audio.play();
+
+    audio.onended = () => setIsSpeaking(false);
+  } catch (err) {
+    console.error("TTS Error:", err);
+    setIsSpeaking(false);
+  }
+};
+
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
