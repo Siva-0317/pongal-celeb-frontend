@@ -37,53 +37,35 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
     return text.split(" ").map(word => dictionary[word.toLowerCase()] || word).join(" ");
   };
 
-const speakTamil = (text) => {
-  if (!window.speechSynthesis) {
-    console.error("Browser does not support TTS");
-    return;
-  }
+const speakTamil = async (text) => {
+  try {
+    setIsSpeaking(true);
 
-  // Cancel any stuck audio
-  window.speechSynthesis.cancel();
+    // Call backend /tts
+    const res = await fetch("https://pongal-celeb.onrender.com/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = "ta-IN"; 
-  utterance.rate = 0.9;
-  utterance.volume = 1.0;
+    // Backend returns an MP3 file
+    if (!res.ok) throw new Error("TTS request failed");
 
-  const loadVoicesAndSpeak = () => {
-    const voices = window.speechSynthesis.getVoices();
-    console.log("Available voices:", voices);
+    // Convert response to a blob
+    const blob = await res.blob();
+    const audioUrl = URL.createObjectURL(blob);
 
-    // Look for Tamil voice
-    const tamilVoice = voices.find(
-      (v) => v.lang.toLowerCase().includes("ta") || v.name.toLowerCase().includes("tamil")
-    );
+    // Play audio
+    const audio = new Audio(audioUrl);
+    audio.play();
+    audio.onended = () => setIsSpeaking(false);
 
-    if (tamilVoice) {
-      utterance.voice = tamilVoice;
-      console.log("Speaking with voice:", tamilVoice.name);
-    } else {
-      console.warn("No Tamil voice found, using default.");
-    }
-
-    window.speechSynthesis.speak(utterance);
-  };
-
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = loadVoicesAndSpeak;
-  } else {
-    loadVoicesAndSpeak();
-  }
-
-  // Lip sync triggers
-  utterance.onstart = () => setIsSpeaking(true);
-  utterance.onend = () => setIsSpeaking(false);
-  utterance.onerror = (e) => {
-    console.error("Audio Error:", e);
+  } catch (err) {
+    console.error("TTS Error:", err);
     setIsSpeaking(false);
-  };
+  }
 };
+
 
   // --- SEND LOGIC ---
   const handleSend = async (msgOverride = null, displayOverride = null) => {
