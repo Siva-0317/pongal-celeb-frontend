@@ -50,7 +50,7 @@ body {
 
 /* ACE Logo (Right) */
 .header-logo-right {
-  height: 70px;
+  height: 100px;
   max-width: 180px;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(255,255,255,0.4));
