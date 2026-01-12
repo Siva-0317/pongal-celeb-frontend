@@ -54,8 +54,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 396px;              /* 380 + (8*2) */
-  height: 396px;
+  width: 380px;           /* 380 + (8*2) */
+  height: 380px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 2px solid var(--accent-color);
