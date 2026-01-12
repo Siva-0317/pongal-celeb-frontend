@@ -43,7 +43,7 @@ body {
 /* Easwari Logo (Left) */
 .header-logo-left {
   height: 80px;
-  max-width: 200px;
+  max-width: 210px;
   object-fit: contain;
   filter: drop-shadow(0 0 8px rgba(0,212,255,0.4));
 }
