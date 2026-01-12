@@ -28,28 +28,21 @@ const ChatInterface = ({ setEmotion, setIsSpeaking, conversationHistory, setConv
         conversation_history: conversationHistory
       });
 
-      const botMessage = {
-        role: 'assistant',
-        content: response.data.response
-      };
-
+      const botMessage = { role: 'assistant', content: response.data.response };
       setConversationHistory(prev => [...prev, botMessage]);
       setEmotion(response.data.emotion);
       
-      // Simulate speaking animation
       setIsSpeaking(true);
-      const speakDuration = response.data.response.length * 50; // 50ms per character
       setTimeout(() => {
         setIsSpeaking(false);
         setEmotion('neutral');
-      }, speakDuration);
+      }, 2000);
 
     } catch (error) {
-      console.error('Error:', error);
       setEmotion('sad');
-      const errorMessage = {
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+      const errorMessage = { 
+        role: 'assistant', 
+        content: 'Oops! Check backend connection.' 
       };
       setConversationHistory(prev => [...prev, errorMessage]);
     } finally {
@@ -67,11 +60,15 @@ const ChatInterface = ({ setEmotion, setIsSpeaking, conversationHistory, setConv
   return (
     <div className="chat-container">
       <div className="chat-messages">
-        {conversationHistory.map((msg, idx) => (
+        {/* Show only last 3 messages for compact view */}
+        {conversationHistory.slice(-3).map((msg, idx) => (
           <div key={idx} className={`message ${msg.role}`}>
-            <div className="message-content">{msg.content}</div>
+            <div className="message-content">
+              {msg.content}
+            </div>
           </div>
         ))}
+        
         {isLoading && (
           <div className="message assistant">
             <div className="typing-indicator">
@@ -84,16 +81,22 @@ const ChatInterface = ({ setEmotion, setIsSpeaking, conversationHistory, setConv
       
       <div className="chat-input-container">
         <input
-          type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyPress={handleKeyPress}
-          placeholder="Type your message..."
+          placeholder="Ask about Pongal menu..."
           disabled={isLoading}
           className="chat-input"
+          maxLength={100}
         />
-        <button onClick={handleSend} disabled={isLoading} className="send-button">
-          Send
+        <button 
+          onClick={handleSend} 
+          disabled={isLoading || !input.trim()}
+          className="send-button"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
         </button>
       </div>
     </div>
