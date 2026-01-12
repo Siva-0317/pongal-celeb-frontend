@@ -1,33 +1,48 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: radial-gradient(ellipse at center, #0a0a1a 0%, #1a1a2e 70%, #16213e 100%);
-  color: #fff;
-  overflow: hidden;
-  height: 100vh;
-}
-
+/* Ensure the app takes exactly full screen and doesn't scroll the body */
 .App {
   height: 100vh;
   width: 100vw;
+  background-color: #0b1120; /* Dark bg */
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* Stop the whole page from moving */
 }
 
-.avatar-container {
-  flex: 1;
-  min-height: 85vh;
+/* Avatar Section stays fixed at the top */
+.avatar-section {
+  flex: 0 0 auto; /* Don't grow, don't shrink */
+  padding-top: 20px;
+  z-index: 10;
+}
+
+/* Chat Interface takes remaining space */
+.chat-interface-container {
+  flex: 1; /* Take all remaining height */
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Crucial for scrolling to work inside flex items */
+  max-width: 900px;
+  margin: 0 auto;
   width: 100%;
-  position: relative;
-  background: radial-gradient(circle at center, rgba(0, 212, 255, 0.08) 0%, transparent 60%);
+  padding-bottom: 20px;
 }
 
-canvas {
-  display: block;
-  height: 85vh !important;
+/* Make the message list scrollable */
+.chat-window {
+  flex: 1;
+  overflow-y: auto; /* SCROLL HERE ONLY */
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  
+  /* Scrollbar styling for a cool look */
+  scrollbar-width: thin;
+  scrollbar-color: #00d4ff #0b1120;
+}
+
+.chat-window::-webkit-scrollbar {
+  width: 8px;
+}
+.chat-window::-webkit-scrollbar-thumb {
+  background-color: #00d4ff;
+  border-radius: 4px;
 }

@@ -57,7 +57,12 @@
   height: 100%;
   border-radius: 50%;
   border: 8px solid var(--accent-color);
-  object-fit: cover;
+  object-fit: cover; /* Ensures video fills the circle */
+  
+  /* --- FIX: Add Background Color --- */
+  background: radial-gradient(circle, #1a2a3a 0%, #000000 100%); /* Dark Blue to Black */
+  /* OR use a solid color if you prefer: background: #000; */
+  
   filter: drop-shadow(0 0 20px var(--accent-color));
   transition: transform 0.3s ease;
 }

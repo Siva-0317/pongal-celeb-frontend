@@ -24,42 +24,53 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   }, [externalInput]);
 
   // --- 🔊 ROBUST AUDIO FUNCTION ---
+  // --- 🔊 ROBUST AUDIO FUNCTION ---
   const speakTamil = (text) => {
+    // 1. Basic check
     if (!window.speechSynthesis) {
       console.error("Browser does not support TTS");
       return;
     }
 
-    // 1. Cancel existing speech
+    // 2. Cancel any ongoing speech
     window.speechSynthesis.cancel();
 
-    // 2. Create utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ta-IN'; 
-    utterance.rate = 0.9;
-    utterance.volume = 1.0;
+    // 3. Helper to actually speak
+    const play = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ta-IN'; 
+      utterance.rate = 0.9; 
+      utterance.volume = 1.0; 
+      utterance.pitch = 1.0;
 
-    // 3. Force Tamil Voice (Wait for voices to load)
-    const setVoice = () => {
+      // Try to get a Tamil voice (Google Tamil, Microsoft Tamil, etc.)
       const voices = window.speechSynthesis.getVoices();
       const tamilVoice = voices.find(v => v.lang.includes('ta') || v.lang.includes('Tamil'));
-      if (tamilVoice) utterance.voice = tamilVoice;
+      
+      if (tamilVoice) {
+        utterance.voice = tamilVoice;
+        console.log("Using Voice:", tamilVoice.name);
+      } else {
+        console.warn("No Tamil voice found, using default.");
+      }
+
+      // Sync Lips
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = (e) => {
+        console.error("Audio Error:", e);
+        setIsSpeaking(false);
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
-    
-    // Chrome loads voices asynchronously
+
+    // 4. Handle Chrome's async voice loading
     if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = setVoice;
+      window.speechSynthesis.onvoiceschanged = play;
     } else {
-      setVoice();
+      play();
     }
-
-    // 4. Lip Sync Triggers
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    // 5. Speak
-    window.speechSynthesis.speak(utterance);
   };
 
   // --- SEND LOGIC ---
