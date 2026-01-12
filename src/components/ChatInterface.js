@@ -50,7 +50,7 @@ const ChatInterface = ({ externalInput, setVoiceInput, setIsSpeaking, setEmotion
   };
 
   // --- TTS AUDIO ---
-  const speakTamil = async (text, speed = 1.1) => {
+  const speakTamil = async (text, speed = 1.0) => {
     try {
       setIsSpeaking(true);
       const res = await fetch(`${API_URL}/tts`, {
