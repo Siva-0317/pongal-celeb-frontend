@@ -78,3 +78,5 @@ const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
   );
 };
 
+
+export default ChatbotAvatar;
