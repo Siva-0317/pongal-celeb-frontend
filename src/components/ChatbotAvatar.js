@@ -1,166 +1,226 @@
-import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
+import React, { useRef, useEffect, useState } from 'react';
+import './ChatbotAvatar.css';
 
 const ChatbotAvatar = ({ emotion = 'neutral', isSpeaking = false }) => {
-  const groupRef = useRef();
-  const bodyRef = useRef();
-  const faceRef = useRef();
-  const eyesGroupRef = useRef();
-  const leftEyeRef = useRef();
-  const rightEyeRef = useRef();
-  const mouthRef = useRef();
+  const avatarRef = useRef(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
 
-  const emotionStyles = {
-    neutral: { eyeScale: 1, eyeGlow: 0.9, mouthCurve: 0.15, glowColor: '#00d4ff' },
-    happy: { eyeScale: 1.1, eyeGlow: 1.2, mouthCurve: 0.4, glowColor: '#00ffcc' },
-    excited: { eyeScale: 1.2, eyeGlow: 1.5, mouthCurve: 0.5, glowColor: '#ffaa00' },
-    sad: { eyeScale: 0.85, eyeGlow: 0.5, mouthCurve: -0.2, glowColor: '#6a7cff' },
-    thinking: { eyeScale: 0.95, eyeGlow: 1.0, mouthCurve: 0.2, glowColor: '#bb88ff' }
+  // Track mouse position for interactive eyes
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!avatarRef.current) return;
+      
+      const rect = avatarRef.current.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const x = e.clientX - rect.left - centerX;
+      const y = e.clientY - rect.top - centerY;
+      
+      // Limit the movement angle
+      const angle = Math.atan2(y, x);
+      const distance = Math.min(15, Math.sqrt(x * x + y * y) / 20);
+      
+      setMousePos({
+        x: Math.cos(angle) * distance,
+        y: Math.sin(angle) * distance
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  const emotionConfig = {
+    neutral: {
+      bgColor: '#1a2a3a',
+      accentColor: '#00d4ff',
+      eyeExpression: 'neutral',
+      description: 'Ready to help!'
+    },
+    happy: {
+      bgColor: '#1a3a2a',
+      accentColor: '#00ffcc',
+      eyeExpression: 'happy',
+      description: 'Happy to help!'
+    },
+    excited: {
+      bgColor: '#3a2a1a',
+      accentColor: '#ffaa00',
+      eyeExpression: 'excited',
+      description: 'Excited!'
+    },
+    sad: {
+      bgColor: '#2a1a3a',
+      accentColor: '#6a7cff',
+      eyeExpression: 'sad',
+      description: 'Sorry about that...'
+    },
+    thinking: {
+      bgColor: '#2a2a3a',
+      accentColor: '#bb88ff',
+      eyeExpression: 'thinking',
+      description: 'Let me think...'
+    }
   };
 
-  const style = emotionStyles[emotion] || emotionStyles.neutral;
+  const config = emotionConfig[emotion] || emotionConfig.neutral;
 
-  useFrame((state) => {
-    const t = state.clock.getElapsedTime();
+  // Eye rendering based on emotion
+  const renderEyes = () => {
+    const baseX = mousePos.x;
+    const baseY = mousePos.y;
 
-    /* Floating + head tilt */
-    if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(t * 1.2) * 0.04;
-      groupRef.current.rotation.y = Math.sin(t * 0.4) * 0.15;
-      groupRef.current.rotation.x = Math.sin(t * 0.3) * 0.05;
+    switch (config.eyeExpression) {
+      case 'happy':
+        return (
+          <>
+            <circle cx={-25} cy={-15} r={16} fill={config.accentColor} opacity="0.8" />
+            <circle cx={25} cy={-15} r={16} fill={config.accentColor} opacity="0.8" />
+            {/* Happy eyes (curved) */}
+            <path d="M -35 -15 Q -25 -5 -15 -15" stroke={config.bgColor} strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 15 -15 Q 25 -5 35 -15" stroke={config.bgColor} strokeWidth="3" fill="none" strokeLinecap="round" />
+          </>
+        );
+      
+      case 'excited':
+        return (
+          <>
+            <circle cx={-25 + baseX} cy={-15 + baseY} r={18} fill={config.accentColor} />
+            <circle cx={25 + baseX} cy={-15 + baseY} r={18} fill={config.accentColor} />
+            <circle cx={-25 + baseX} cy={-15 + baseY} r={8} fill={config.bgColor} />
+            <circle cx={25 + baseX} cy={-15 + baseY} r={8} fill={config.bgColor} />
+          </>
+        );
+      
+      case 'sad':
+        return (
+          <>
+            <circle cx={-25} cy={-15} r={16} fill={config.accentColor} opacity="0.6" />
+            <circle cx={25} cy={-15} r={16} fill={config.accentColor} opacity="0.6" />
+            {/* Sad eyes (curved down) */}
+            <path d="M -35 -15 Q -25 -25 -15 -15" stroke={config.bgColor} strokeWidth="3" fill="none" strokeLinecap="round" />
+            <path d="M 15 -15 Q 25 -25 35 -15" stroke={config.bgColor} strokeWidth="3" fill="none" strokeLinecap="round" />
+          </>
+        );
+      
+      case 'thinking':
+        return (
+          <>
+            <circle cx={-25} cy={-15} r={14} fill={config.accentColor} opacity="0.7" />
+            <circle cx={25} cy={-15} r={14} fill={config.accentColor} opacity="0.7" />
+            <circle cx={-25} cy={-15} r={5} fill={config.bgColor} />
+            <circle cx={25} cy={-15} r={5} fill={config.bgColor} />
+            {/* Thinking dots */}
+            <circle cx={50} cy={-40} r="3" fill={config.accentColor} opacity="0.6" />
+            <circle cx={60} cy={-50} r="3" fill={config.accentColor} opacity="0.4" />
+            <circle cx={70} cy={-45} r="3" fill={config.accentColor} opacity="0.2" />
+          </>
+        );
+      
+      default: // neutral
+        return (
+          <>
+            <circle cx={-25 + baseX} cy={-15 + baseY} r={14} fill={config.accentColor} />
+            <circle cx={25 + baseX} cy={-15 + baseY} r={14} fill={config.accentColor} />
+            {/* Pupils */}
+            <circle cx={-25 + baseX} cy={-15 + baseY} r={6} fill={config.bgColor} />
+            <circle cx={25 + baseX} cy={-15 + baseY} r={6} fill={config.bgColor} />
+          </>
+        );
+    }
+  };
+
+  // Mouth rendering
+  const renderMouth = () => {
+    if (isSpeaking) {
+      return (
+        <>
+          <ellipse cx="0" cy="25" rx="25" ry="20" fill={config.accentColor} opacity="0.4" />
+          <path d="M -20 15 Q 0 40 20 15" stroke={config.accentColor} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+        </>
+      );
     }
 
-    /* Breathing body */
-    if (bodyRef.current) {
-      const s = 1 + Math.sin(t * 2) * 0.015;
-      bodyRef.current.scale.set(s, s, s);
+    switch (emotion) {
+      case 'happy':
+        return <path d="M -15 20 Q 0 30 15 20" stroke={config.accentColor} strokeWidth="2.5" fill="none" strokeLinecap="round" />;
+      case 'excited':
+        return <path d="M -20 15 Q 0 35 20 15" stroke={config.accentColor} strokeWidth="3" fill="none" strokeLinecap="round" />;
+      case 'sad':
+        return <path d="M -15 30 Q 0 15 15 30" stroke={config.accentColor} strokeWidth="2.5" fill="none" strokeLinecap="round" />;
+      default:
+        return <line x1="-12" y1="22" x2="12" y2="22" stroke={config.accentColor} strokeWidth="2" strokeLinecap="round" />;
     }
-
-    /* Face glow pulse */
-    if (faceRef.current) {
-      faceRef.current.material.emissiveIntensity =
-        0.6 + Math.sin(t * 2) * 0.15;
-    }
-
-    /* Eye movement (alive look) */
-    if (eyesGroupRef.current) {
-      eyesGroupRef.current.position.x = Math.sin(t * 0.8) * 0.03;
-      eyesGroupRef.current.position.y = Math.sin(t * 1.1) * 0.02;
-    }
-
-    /* Natural blinking */
-    const blink = Math.sin(t * 3.5) > 0.96 ? 0.1 : style.eyeScale;
-
-    if (leftEyeRef.current && rightEyeRef.current) {
-      leftEyeRef.current.scale.y = blink;
-      rightEyeRef.current.scale.y = blink;
-
-      leftEyeRef.current.material.emissiveIntensity = style.eyeGlow;
-      rightEyeRef.current.material.emissiveIntensity = style.eyeGlow;
-    }
-
-    /* Mouth animation */
-    if (mouthRef.current) {
-      mouthRef.current.scale.y = isSpeaking
-        ? 0.6 + Math.sin(t * 10) * 0.4
-        : 1;
-    }
-  });
+  };
 
   return (
-    <group ref={groupRef} scale={1.2}>
-      {/* Main chrome body */}
-      <mesh ref={bodyRef}>
-        <sphereGeometry args={[1.4, 64, 64]} />
-        <meshStandardMaterial
-          color="#1f2230"
-          metalness={0.85}
-          roughness={0.25}
-          envMapIntensity={1.5}
-        />
-      </mesh>
+    <div 
+      className="avatar-container"
+      ref={avatarRef}
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+      style={{ '--accent-color': config.accentColor, '--bg-color': config.bgColor }}
+    >
+      <div className={`avatar-wrapper ${isHovering ? 'hovering' : ''} ${isSpeaking ? 'speaking' : ''}`}>
+        {/* Main avatar SVG */}
+        <svg className="avatar-svg" viewBox="-100 -100 200 200" width="200" height="200">
+          {/* Background glow */}
+          <defs>
+            <filter id={`glow-${emotion}`}>
+              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <radialGradient id="avatarGradient">
+              <stop offset="0%" stopColor={config.accentColor} stopOpacity="0.2" />
+              <stop offset="100%" stopColor={config.accentColor} stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-      {/* Glass face bubble */}
-      <mesh ref={faceRef} position={[0, 0.15, 1.2]}>
-        <sphereGeometry args={[0.95, 64, 64]} />
-        <meshPhysicalMaterial
-          color="#05060d"
-          transmission={0.9}
-          thickness={0.6}
-          roughness={0.05}
-          metalness={0}
-          emissive={style.glowColor}
-          emissiveIntensity={0.6}
-          clearcoat={1}
-        />
-      </mesh>
+          {/* Outer glow circle */}
+          <circle cx="0" cy="0" r="95" fill="url(#avatarGradient)" />
 
-      {/* Eyes */}
-      <group ref={eyesGroupRef}>
-        <mesh ref={leftEyeRef} position={[-0.25, 0.3, 1.9]}>
-          <sphereGeometry args={[0.1, 16, 16]} />
-          <meshStandardMaterial
-            color={style.glowColor}
-            emissive={style.glowColor}
-            emissiveIntensity={style.eyeGlow}
-          />
-        </mesh>
+          {/* Main head */}
+          <circle cx="0" cy="0" r="70" fill={config.bgColor} stroke={config.accentColor} strokeWidth="2" filter={`url(#glow-${emotion})`} />
 
-        <mesh ref={rightEyeRef} position={[0.25, 0.3, 1.9]}>
-          <sphereGeometry args={[0.1, 16, 16]} />
-          <meshStandardMaterial
-            color={style.glowColor}
-            emissive={style.glowColor}
-            emissiveIntensity={style.eyeGlow}
-          />
-        </mesh>
-      </group>
+          {/* Accent ring */}
+          <circle cx="0" cy="0" r="70" fill="none" stroke={config.accentColor} strokeWidth="1" opacity="0.4" />
 
-      {/* Smiling mouth */}
-      <mesh ref={mouthRef} position={[0, -0.1, 1.9]}>
-        <torusGeometry args={[0.22, 0.025, 16, 100, Math.PI]} />
-        <meshStandardMaterial
-          color={style.glowColor}
-          emissive={style.glowColor}
-          emissiveIntensity={0.8}
-        />
-      </mesh>
+          {/* Eyes */}
+          <g className="eyes">
+            {renderEyes()}
+          </g>
 
-      {/* Side accent lights */}
-      <mesh position={[-0.7, 0, 1.2]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.3, 8]} />
-        <meshStandardMaterial
-          color={style.glowColor}
-          emissive={style.glowColor}
-          emissiveIntensity={0.6}
-        />
-      </mesh>
+          {/* Mouth */}
+          <g className="mouth">
+            {renderMouth()}
+          </g>
 
-      <mesh position={[0.7, 0, 1.2]}>
-        <cylinderGeometry args={[0.05, 0.05, 0.3, 8]} />
-        <meshStandardMaterial
-          color={style.glowColor}
-          emissive={style.glowColor}
-          emissiveIntensity={0.6}
-        />
-      </mesh>
+          {/* Optional: Bottom accent bar for speaking */}
+          {isSpeaking && (
+            <rect x="-50" y="75" width="100" height="4" rx="2" fill={config.accentColor} opacity="0.6" />
+          )}
+        </svg>
 
-      {/* Bottom glow ring */}
-      <mesh position={[0, -1.25, 0]}>
-        <ringGeometry args={[1.5, 1.65, 32]} />
-        <meshBasicMaterial
-          color={style.glowColor}
-          transparent
-          opacity={0.4}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
+        {/* Status text */}
+        <div className="avatar-status" style={{ color: config.accentColor }}>
+          {config.description}
+        </div>
 
-      {/* Lights */}
-      <pointLight position={[0, 0, 3]} color={style.glowColor} intensity={1} />
-      <ambientLight intensity={0.45} />
-    </group>
+        {/* Interaction pulse (shows on hover) */}
+        {isHovering && <div className="interaction-pulse" style={{ borderColor: config.accentColor }} />}
+      </div>
+
+      {/* Placeholder for video - will be added later */}
+      <div className="video-placeholder" style={{ borderColor: config.accentColor }}>
+        <p>Video Animation</p>
+        <p style={{ fontSize: '12px', opacity: 0.6 }}>Coming soon...</p>
+      </div>
+    </div>
   );
 };
 

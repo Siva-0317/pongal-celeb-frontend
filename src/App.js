@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
 import ChatbotAvatar from './components/ChatbotAvatar';
 import ChatInterface from './components/ChatInterface';
 import './App.css';
@@ -11,19 +10,12 @@ function App() {
 
   return (
     <div className="App">
-      {/* Full screen avatar */}
-      <div className="avatar-container">
-        <Canvas 
-          camera={{ position: [0, 0, 4], fov: 60 }}
-          style={{ height: '85vh' }}
-        >
-          <ambientLight intensity={0.6} />
-          <pointLight position={[10, 10, 10]} intensity={1.2} />
-          <ChatbotAvatar emotion={emotion} isSpeaking={isSpeaking} />
-        </Canvas>
+      {/* Interactive avatar section */}
+      <div className="avatar-section">
+        <ChatbotAvatar emotion={emotion} isSpeaking={isSpeaking} />
       </div>
       
-      {/* Compact bottom chat - 15vh only */}
+      {/* Compact bottom chat */}
       <ChatInterface
         setEmotion={setEmotion}
         setIsSpeaking={setIsSpeaking}

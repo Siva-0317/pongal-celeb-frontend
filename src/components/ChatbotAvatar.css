@@ -1,0 +1,228 @@
+.avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 30px 20px;
+  background: linear-gradient(135deg, rgba(26, 42, 58, 0.3), rgba(42, 42, 58, 0.3));
+  border-radius: 20px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  position: relative;
+  min-height: 400px;
+  --accent-color: #00d4ff;
+  --bg-color: #1a2a3a;
+}
+
+.avatar-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.avatar-wrapper.hovering {
+  transform: scale(1.05);
+}
+
+.avatar-wrapper.speaking {
+  animation: speak-pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes speak-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+/* Avatar SVG */
+.avatar-svg {
+  filter: drop-shadow(0 0 20px var(--accent-color));
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.avatar-svg:hover {
+  filter: drop-shadow(0 0 35px var(--accent-color));
+}
+
+.eyes {
+  animation: eyes-blink 3s ease-in-out infinite;
+}
+
+@keyframes eyes-blink {
+  0%, 10%, 15%, 100% { opacity: 1; }
+  8%, 12% { opacity: 0.2; }
+}
+
+.mouth {
+  animation: mouth-breathe 2s ease-in-out infinite;
+}
+
+@keyframes mouth-breathe {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+
+/* Status text below avatar */
+.avatar-status {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: status-glow 2s ease-in-out infinite;
+}
+
+@keyframes status-glow {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* Interaction pulse on hover */
+.interaction-pulse {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 220px;
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  animation: pulse-ring 2s ease-out infinite;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+@keyframes pulse-ring {
+  0% {
+    width: 220px;
+    height: 220px;
+    opacity: 0.4;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Video placeholder */
+.video-placeholder {
+  width: 100%;
+  max-width: 350px;
+  height: 180px;
+  border: 2px dashed rgba(0, 212, 255, 0.3);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 212, 255, 0.05);
+  color: rgba(0, 212, 255, 0.5);
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.video-placeholder:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+.video-placeholder p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .avatar-container {
+    min-height: 350px;
+    padding: 20px 15px;
+  }
+
+  .avatar-svg {
+    width: 160px;
+    height: 160px;
+  }
+
+  .interaction-pulse {
+    width: 180px;
+    height: 180px;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      width: 180px;
+      height: 180px;
+      opacity: 0.4;
+    }
+    100% {
+      width: 250px;
+      height: 250px;
+      opacity: 0;
+    }
+  }
+
+  .avatar-status {
+    font-size: 12px;
+  }
+
+  .video-placeholder {
+    max-width: 280px;
+    height: 140px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .avatar-container {
+    min-height: 300px;
+    padding: 15px 10px;
+    gap: 15px;
+  }
+
+  .avatar-svg {
+    width: 140px;
+    height: 140px;
+  }
+
+  .interaction-pulse {
+    width: 160px;
+    height: 160px;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      width: 160px;
+      height: 160px;
+      opacity: 0.4;
+    }
+    100% {
+      width: 220px;
+      height: 220px;
+      opacity: 0;
+    }
+  }
+
+  .avatar-status {
+    font-size: 11px;
+  }
+
+  .video-placeholder {
+    max-width: 100%;
+    height: 120px;
+    font-size: 11px;
+  }
+}
+
+/* Accent color animations */
+.avatar-container[style*="--accent-color"] .avatar-status {
+  color: var(--accent-color);
+}
+
+.avatar-container[style*="--accent-color"] .video-placeholder {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
