@@ -52,7 +52,7 @@
 /* PERFECTLY ALIGNED PULSE */
 .interaction-pulse {
   position: absolute;
-  top: 35%;
+  top: 38%;
   left: 50%;
   width: 380px;           /* 380 + (8*2) */
   height: 380px;
