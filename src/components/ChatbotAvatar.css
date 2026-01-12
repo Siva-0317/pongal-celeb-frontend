@@ -46,25 +46,20 @@
   filter: drop-shadow(0 0 35px var(--accent-color));
 }
 
-.eyes {
-  animation: eyes-blink 3s ease-in-out infinite;
+/* Video element */
+.avatar-video {
+  width: 280px;
+  height: 280px;
+  border: 2px solid var(--accent-color);
+  border-radius: 50%;
+  object-fit: cover;
+  filter: drop-shadow(0 0 20px var(--accent-color));
+  transition: all 0.3s ease;
 }
 
-@keyframes eyes-blink {
-  0%, 10%, 15%, 100% { opacity: 1; }
-  8%, 12% { opacity: 0.2; }
+.avatar-wrapper:hover .avatar-video {
+  filter: drop-shadow(0 0 35px var(--accent-color));
 }
-
-.mouth {
-  animation: mouth-breathe 2s ease-in-out infinite;
-}
-
-@keyframes mouth-breathe {
-  0%, 100% { opacity: 0.9; }
-  50% { opacity: 1; }
-}
-
-/* Status text below avatar */
 .avatar-status {
   font-size: 14px;
   font-weight: 500;
