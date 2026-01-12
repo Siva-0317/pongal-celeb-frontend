@@ -12,8 +12,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
-    "preinstall": "npm install --legacy-peer-deps"
+    "build": "react-scripts build"
   },
   "overrides": {
     "react-scripts": {
