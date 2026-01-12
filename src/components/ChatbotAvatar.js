@@ -93,6 +93,6 @@ return (
     </div>
   </>
 );
-
+};
 
 export default ChatbotAvatar;
