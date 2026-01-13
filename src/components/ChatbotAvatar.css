@@ -169,7 +169,7 @@
 }
 
 /* ================= RESPONSIVE ================= */
-@media (max-width: 1024px) {
+@media (max-width: 1024px) AND (orientation: portrait) {
   .avatar-video-wrapper {
     width: 280px;
     height: 220px;
@@ -179,8 +179,8 @@
 /* Landscape */
 @media(max-width: 1024px) and (orientation: landscape){
   .avatar-video-wrapper {
-    width: 280px;
-    height: 280px;
+    width: 250px;
+    height: 250px;
   }
 }
 
