@@ -171,7 +171,7 @@
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
   .avatar-video-wrapper {
-    width: 320px;
+    width: 280px;
     height: 280px;
   }
 }
