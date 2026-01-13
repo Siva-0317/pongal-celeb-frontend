@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ChatbotAvatar from './components/ChatbotAvatar';
 import ChatInterface from './components/ChatInterface';
 import './App.css';
@@ -8,6 +8,15 @@ function App() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [voiceInput, setVoiceInput] = useState('');
 
+  // 🎵 Background Music Ref
+  const audioRef = useRef(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.25; // keep volume low for soothing effect
+    }
+  }, []);
+
   const handleMicInput = (text) => {
     console.log("App received:", text);
     setVoiceInput(text);
@@ -15,6 +24,12 @@ function App() {
 
   return (
     <div className="App">
+      {/* 🎵 Background Music */}
+      <audio ref={audioRef} autoPlay loop>
+        <source src="/music/bgm.mp3" type="audio/mp3" />
+        Your browser does not support the audio element.
+      </audio>
+
       {/* === LEFT SIDE: Avatar, Logos, Mic === */}
       <div className="left-panel">
         {/* 🔧 HEADER BAR WITH LOGOS + TEXT */}
