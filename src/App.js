@@ -12,9 +12,36 @@ function App() {
   const audioRef = useRef(null);
 
   useEffect(() => {
+    // Set volume initially
     if (audioRef.current) {
-      audioRef.current.volume = 0.25; // keep volume low for soothing effect
+      audioRef.current.volume = 0.55; // keep volume low for soothing effect
     }
+
+    // Function to handle autoplay restrictions
+    const playAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            // If play is successful, remove the event listeners so it doesn't try again
+            document.removeEventListener('click', playAudio);
+            document.removeEventListener('keydown', playAudio);
+          })
+          .catch((err) => {
+            // If it fails (browser blocks it), we just wait for the next click
+            console.log("Audio play failed (waiting for interaction):", err);
+          });
+      }
+    };
+
+    // Add listeners to document to detect user interaction
+    document.addEventListener('click', playAudio);
+    document.addEventListener('keydown', playAudio);
+
+    // Cleanup listeners when component unmounts
+    return () => {
+      document.removeEventListener('click', playAudio);
+      document.removeEventListener('keydown', playAudio);
+    };
   }, []);
 
   const handleMicInput = (text) => {
@@ -25,7 +52,8 @@ function App() {
   return (
     <div className="App">
       {/* 🎵 Background Music */}
-      <audio ref={audioRef} autoPlay loop>
+      {/* Removed 'autoPlay' attribute; we handle it via the useEffect above */}
+      <audio ref={audioRef} loop>
         <source src="/music/bgm.mp3" type="audio/mp3" />
         Your browser does not support the audio element.
       </audio>
