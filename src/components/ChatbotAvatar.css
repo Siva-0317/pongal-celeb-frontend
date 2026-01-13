@@ -179,8 +179,9 @@
 /* Landscape */
 @media(max-width: 1024px) and (orientation: landscape){
   .avatar-video-wrapper {
-    width: 250px;
-    height: 250px;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
   }
 }
 
